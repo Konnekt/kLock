@@ -1,0 +1,4 @@
+#define FILEVER  1,3,0,103
+#define PRODUCTVER  1,3,0,103
+#define STRFILEVER  "1.3.0.103"
+#define STRPRODUCTVER  "1.3.0.103"
