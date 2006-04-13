@@ -61,7 +61,7 @@ namespace kLock
 			}
 
 			//jeœli has³o siê zgadza zwracamy 1, jeœli nie 0
-			if((std::string)sde.pass == (std::string)GETSTRA(kLock::Config::Password))
+			if(sde.pass == GETSTRA(kLock::Config::Password))
 			{
 				unlocking = 0;
 				return 1;
