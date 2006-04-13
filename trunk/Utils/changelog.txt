@@ -3,7 +3,7 @@ Nowoœci:
 -Ukrywanie Konnekta na liœcie procesów (tylko Win98)
 -Blokowanie powiadomieñ kNotify
 -Synchronizacja z kAway2
--Mo¿liwoœæ wyboru, gdzie ma byæ przycisk
+-Mo¿liwoœæ wyboru, gdzie ma byæ przycisk blokuj¹cy
 
 Poprawki:
 -Poprawki przywracania okienka i wyciszania
