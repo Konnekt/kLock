@@ -281,8 +281,8 @@ namespace kLock
 		UIActionSetStatus(sUIAction(kLock::Config::Group, IMIB_CFG|kLock::Config::LockTray), 0, ACTS_DISABLED);
 		UIActionSetStatus(sUIAction(kLock::Config::Group, IMIB_CFG|kLock::Config::LockProcess), 0, ACTS_DISABLED);
 		UIActionSetStatus(sUIAction(kLock::Config::Group, kLock::Config::ButtonPlace1), 0, ACTS_DISABLED);
-		UIActionSetStatus(sUIAction(kLock::Config::Group, kLock::Config::ButtonPlace1), 0, ACTS_DISABLED);
-		UIActionSetStatus(sUIAction(kLock::Config::Group, kLock::Config::ButtonPlace1), 0, ACTS_DISABLED);
+		UIActionSetStatus(sUIAction(kLock::Config::Group, kLock::Config::ButtonPlace2), 0, ACTS_DISABLED);
+		UIActionSetStatus(sUIAction(kLock::Config::Group, kLock::Config::ButtonPlace3), 0, ACTS_DISABLED);
 		UIActionSetStatus(sUIAction(kLock::Config::Group, IMIB_CFG|kLock::Config::SynchronizeWithkAway), 0, ACTS_DISABLED);
 		UIActionSetStatus(sUIAction(kLock::Config::Group, IMIB_CFG|kLock::Config::LockKNotify), 0, ACTS_DISABLED);
 		UIActionSetText(kLock::Config::Group, kLock::Config::EnableActs, "Deaktywuj" AP_ICO "41");
