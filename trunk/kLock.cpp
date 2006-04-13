@@ -147,8 +147,8 @@ namespace kLock
 				UIActionCfgAdd(kLock::config::GROUP, IMIB_CFG, ACTT_CHECK|ACTS_DISABLED, "Blokuj okno g³ówne programu", kLock::config::LOCKLISTANDTOOLBARS);
 				UIActionCfgAdd(kLock::config::GROUP, IMIB_CFG, ACTT_CHECK|ACTS_DISABLED, "Blokuj okienka rozmowy i historiê", kLock::config::LOCKTALKWINDOWS);
 				UIActionCfgAdd(kLock::config::GROUP, IMIB_CFG, ACTT_CHECK|ACTS_DISABLED, "Wyciszaj dŸwiêki", kLock::config::LOCKSOUND);
-				UIActionCfgAdd(kLock::config::GROUP, IMIB_CFG, ACTT_CHECK|ACTS_DISABLED, "Ukrywaj ikonkê w tray'u", kLock::config::LOCKTRAY);
 				UIActionCfgAdd(kLock::config::GROUP, IMIB_CFG, ACTT_CHECK|ACTS_DISABLED, "Blokuj powiadomienia kNotify", kLock::config::LOCKKNOTIFY);
+				UIActionCfgAdd(kLock::config::GROUP, IMIB_CFG, ACTT_CHECK|ACTS_DISABLED, "Ukrywaj ikonkê w tray'u", kLock::config::LOCKTRAY);
 				UIActionCfgAdd(kLock::config::GROUP, IMIB_CFG, ACTT_CHECK|ACTS_DISABLED, "Ukrywaj Konnekta na liœcie procesów" AP_TIP "U¿ywaæ na w³asn¹ odpowiedzialnoœæ, dzia³a jedynie w Windows 9x", kLock::config::LOCKPROCESS);
 			}
 			UIActionCfgAdd(kLock::config::GROUP, 0, ACTT_GROUPEND);
