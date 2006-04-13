@@ -9,61 +9,19 @@ namespace kLock
 		sUIActionInfo nfo;
 
 		//subclassujemy akcjê historii
-		{
-			nfo = sUIActionInfo(IMIG_MAIN_CNT, IMIA_MAIN_HISTORY);
-			nfo.mask = UIAIM_ALL; 
-			nfo.txt = new char[100];
-			nfo.txtSize = 99;
-			UIActionGet(nfo); 
-			kLock::cnt_history_owner = ICMessage(IMI_ACTION_GETOWNER, (int)&nfo.act);
-			if(!kLock::history_owner)
-			{
-				kLock::history_owner = ICMessage(IMC_PLUG_ID, 0);
-			}
-			ICMessage(IMI_ACTION_REMOVE, (int)&nfo.act);
-			ICMessage(IMI_ACTION, (int)&nfo);
-			delete[] nfo.txt;
-		}
+    kLock::history_owner = SubclassAction(IMIG_MAIN_CNT, IMIA_MAIN_HISTORY);
 
 		//subclassujemy akcjê historii w menu kontaktu
-		{
-			nfo = sUIActionInfo(IMIG_CNT, IMIA_CNT_HISTORY);
-			nfo.mask = UIAIM_ALL; 
-			nfo.txt = new char[100];
-			nfo.txtSize = 99;
-			UIActionGet(nfo); 
-			kLock::cnt_history_owner = ICMessage(IMI_ACTION_GETOWNER, (int)&nfo.act);
-			if(!kLock::cnt_history_owner)
-			{
-				kLock::cnt_history_owner = ICMessage(IMC_PLUG_ID, 0);
-			}
-			ICMessage(IMI_ACTION_REMOVE, (int)&nfo.act);
-			ICMessage(IMI_ACTION, (int)&nfo);
-			delete[] nfo.txt;
-		}
+    kLock::cnt_history_owner = SubclassAction(IMIG_CNT, IMIA_CNT_HISTORY);
 
 		//subclassujemy akcjê historii w oknie kontaktu
-		{
-			nfo = sUIActionInfo(IMIG_MSGTB, IMIA_MSG_HISTORY);
-			nfo.mask = UIAIM_ALL;
-			nfo.txt = new char[100];
-			nfo.txtSize = 99;
-			UIActionGet(nfo);
-			kLock::msgwnd_history_owner = ICMessage(IMI_ACTION_GETOWNER, (int)&nfo.act);
-			if(!kLock::msgwnd_history_owner)
-			{
-				kLock::msgwnd_history_owner = ICMessage(IMC_PLUG_ID, 0);
-			}
-			ICMessage(IMI_ACTION_REMOVE, (int)&nfo.act);
-			ICMessage(IMI_ACTION, (int)&nfo);
-			delete[] nfo.txt;
-		}
+    kLock::msgwnd_history_owner = SubclassAction(IMIG_MSGTB, IMIA_MSG_HISTORY);
 
 		//subclassujemy g³ówne okno programu - nie pozwolimy mu siê póŸniej pokazaæ
 		old_mainwnd_proc = (WNDPROC)SetWindowLongPtr((HWND)UIGroupHandle(sUIAction(0, IMIG_MAINWND)), GWLP_WNDPROC, (LONG_PTR)MainWindowProc);
 
 		//sprawdzamy, czy has³o nie jest puste
-		if((std::string)GETSTRA(kLock::Config::Password) == "")
+		if(!strlen(GETSTRA(kLock::Config::Password)))
 		{
 			ICMessage(IMI_INFORM, (int)"Przed pierwszym u¿yciem ustaw has³o blokowania Konnekta!");
 			sDIALOG_access sde;
@@ -78,7 +36,7 @@ namespace kLock
 				{
 					return 0;
 				}
-				if((std::string)sde.pass != "")
+				if(!strlen(sde.pass))
 				{
 					break;
 				}
@@ -123,8 +81,6 @@ namespace kLock
 
 	int IPrepare()
 	{
-		IMLOG("[IPrepare]:");
-
 		//przycisk
 		if(GETINT(kLock::Config::ButtonPlace) == 0)
 		{
@@ -142,7 +98,8 @@ namespace kLock
 		//konfiguracja
 		UIGroupAdd(IMIG_CFG_PLUGS, kLock::Config::Group, 0, "kLock", 35);
 		{
-			UIActionCfgAddPluginInfoBox2(kLock::Config::Group, "Wtyczka ma za zadanie blokowaæ Konnekta, aby nikt niepowo³any nie dosta³ siê do ¿adnych przechowywanych w nim informacji.", "Podstawa: <b>Kamil \"Olórin\" Figiela</b><br />Dalszy rozwój: <b>Micha³ \"Dulek\" Dulko</b><br />Skompilowano: <b>"__TIME__"@"__DATE__"</b>");
+			UIActionCfgAddPluginInfoBox2(kLock::Config::Group, "Wtyczka ma za zadanie blokowaæ Konnekta, aby nikt niepowo³any nie dosta³ siê do ¿adnych przechowywanych w nim informacji.", "Skompilowano: <b>"__TIME__" @ "__DATE__"</b><br /><br />Podstawa: <b>Kamil \"Olórin\" Figiela</b><br />Dalszy rozwój: <b>Micha³ \"Dulek\" Dulko</b>");
+
 			UIActionCfgAdd(kLock::Config::Group, 0, ACTT_GROUP, "Wybierz co blokowaæ");
 			{
 				UIActionCfgAdd(kLock::Config::Group, IMIB_CFG, ACTT_CHECK|ACTS_DISABLED, "Blokuj okno g³ówne programu", kLock::Config::LockMainWindow);
@@ -153,6 +110,7 @@ namespace kLock
 				UIActionCfgAdd(kLock::Config::Group, IMIB_CFG, ACTT_CHECK|ACTS_DISABLED, "Ukrywaj Konnekta na liœcie procesów" AP_TIP "U¿ywaæ na w³asn¹ odpowiedzialnoœæ, dzia³a jedynie w Windows 9x", kLock::Config::LockProcess);
 			}
 			UIActionCfgAdd(kLock::Config::Group, 0, ACTT_GROUPEND);
+
 			UIActionCfgAdd(kLock::Config::Group, 0, ACTT_GROUP, "Opcje");
 			{
 				UIActionCfgAdd(kLock::Config::Group, 0, ACTT_COMMENT|ACTSC_INLINE, "Has³o:");
