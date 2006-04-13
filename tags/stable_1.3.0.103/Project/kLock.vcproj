@@ -57,8 +57,7 @@
 				Name="VCPreBuildEventTool"/>
 			<Tool
 				Name="VCPreLinkEventTool"
-				Description="Incrementing version..."
-				CommandLine="version_increment ../version.h"/>
+				Description="Incrementing version..."/>
 			<Tool
 				Name="VCResourceCompilerTool"/>
 			<Tool
@@ -123,8 +122,7 @@ rmdir /S /Q plugins
 				Name="VCPreBuildEventTool"/>
 			<Tool
 				Name="VCPreLinkEventTool"
-				Description="Incrementing version..."
-				CommandLine="version_increment ../version.h"/>
+				Description="Incrementing version..."/>
 			<Tool
 				Name="VCResourceCompilerTool"/>
 			<Tool
