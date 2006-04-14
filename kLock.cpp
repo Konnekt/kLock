@@ -75,6 +75,7 @@ namespace kLock
 			Ctrl->SetColumn(DTCFG, kLock::Config::LockKNotify, DT_CT_INT, 0, "kLock/LockKNotify");
 			Ctrl->SetColumn(DTCFG, kLock::Config::AskForPasswordOnHistory, DT_CT_INT, 0, "kLock/AskForPasswordOnHistoryAccess");
 			Ctrl->SetColumn(DTCFG, kLock::Config::SynchronizeWithkAway, DT_CT_INT, 0, "kLock/SynchronizeWithkAway2");
+			Ctrl->SetColumn(DTCFG, kLock::Config::ButtonPlace, DT_CT_INT, 0, "kLock/ButtonPlace");
 		}
 		return 1;
 	}
