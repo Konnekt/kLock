@@ -28,6 +28,7 @@ namespace kLock
 		const unsigned LockProcess = Net * 1000 + 114; //ukrywaj na liœcie procesów
 		const unsigned SynchronizeWithkAway = Net * 1000 + 115; //synchronizuj z kAway2
 		const unsigned LockKNotify = Net * 1000 + 116; //blokuj powiadomienia kNotify
+		const unsigned LockkMigacz = NET * 1000 + 117; //blokuj kMigacza
 	}
 
 	namespace Api

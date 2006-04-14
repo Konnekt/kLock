@@ -12,4 +12,6 @@ namespace kLock
 	WNDPROC old_mainwnd_proc; //stary proc g³ównego okna
 	bool unlocking; //czy program jest w trakcie odblokowywania
 	bool acts_enabled; //czy s¹ aktywne kontrolki konfiguracji 
+	bool migacz_status; //czy by³o w³¹czone miganie przy zmianie statusu
+	bool migacz_msg; //czy by³o w³¹czone miganie przy wiadomoœci
 }

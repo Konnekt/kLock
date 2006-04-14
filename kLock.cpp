@@ -73,6 +73,7 @@ namespace kLock
 			Ctrl->SetColumn(DTCFG, kLock::Config::LockTray, DT_CT_INT, 0, "kLock/LockTray");
 			Ctrl->SetColumn(DTCFG, kLock::Config::LockProcess, DT_CT_INT, 0, "kLock/LockProcess");
 			Ctrl->SetColumn(DTCFG, kLock::Config::LockKNotify, DT_CT_INT, 0, "kLock/LockKNotify");
+			Ctrl->SetColumn(DTCFG, kLock::Config::LockkMigacz, DT_CT_INT, 0, "kLock/LockkMigacz");
 			Ctrl->SetColumn(DTCFG, kLock::Config::AskForPasswordOnHistory, DT_CT_INT, 0, "kLock/AskForPasswordOnHistoryAccess");
 			Ctrl->SetColumn(DTCFG, kLock::Config::SynchronizeWithkAway, DT_CT_INT, 0, "kLock/SynchronizeWithkAway2");
 			Ctrl->SetColumn(DTCFG, kLock::Config::ButtonPlace, DT_CT_INT, 0, "kLock/ButtonPlace");
@@ -115,6 +116,10 @@ namespace kLock
 				if(PluginExists(KNotify::net))
 				{
 					UIActionCfgAdd(kLock::Config::Group, IMIB_CFG, ACTT_CHECK|ACTS_DISABLED, "Blokuj powiadomienia kNotify" AP_TIP "Wymaga zmodyfikowanego kNotify", kLock::Config::LockKNotify);
+				}
+				if(PluginExists(NET))
+				{
+					UIActionCfgAdd(kLock::Config::Group, IMIB_CFG, ACTT_CHECK|ACTS_DISABLED, "Blokuj powiadomienia kMigacza", kLock::Config::LockkMigacz);
 				}
 				UIActionCfgAdd(kLock::Config::Group, IMIB_CFG, ACTT_CHECK|ACTS_DISABLED, "Ukrywaj ikonkê w tray'u", kLock::Config::LockTray);
 				UIActionCfgAdd(kLock::Config::Group, IMIB_CFG, ACTT_CHECK|ACTS_DISABLED, "Ukrywaj Konnekta na liœcie procesów" AP_TIP "U¿ywaæ na w³asn¹ odpowiedzialnoœæ, dzia³a jedynie w Windows 9x", kLock::Config::LockProcess);

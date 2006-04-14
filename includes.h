@@ -20,6 +20,7 @@
 #include <konnekt/lib.h>
 #include <konnekt/kAway2.h>
 #include <konnekt/KNotify.h>
+#include <konnekt/kMigacz.h>
 
 //wewnêtrzne
 #include "types.h"

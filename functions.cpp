@@ -107,17 +107,21 @@ namespace kLock
 		}
 
 		//jeœli jest zaznaczona opcja ukrywamy g³ówne okno - jego nowy proc nie pozwoli mu siê pokazaæ
-		if(GETINT(kLock::Config::LockMainWindow))
+		if(GETINT(kLock::Config::LockMainWindow) && IsWindowVisible((HWND)UIGroupHandle(sUIAction(0, IMIG_MAINWND))))
 		{
-			main_visible = IsWindowVisible((HWND)UIGroupHandle(sUIAction(0, IMIG_MAINWND)));
+			main_visible = 1;
 			ShowWindow((HWND)UIGroupHandle(sUIAction(0, IMIG_MAINWND)), SW_HIDE);
+		}
+		else
+		{
+			main_visible = 0;
 		}
 
 		//jeœli jest zaznaczona opcja i dŸwiêki nie s¹ ju¿ wyciszone, wyciszamy je
 		if(GETINT(kLock::Config::LockSound) && !GETINT(kSound::Cfg::mute))
 		{
-			muted = 0;
 			CallAction(Ctrl->IMessage(IMI_GETPLUGINSGROUP, 0, 0), kSound::action::mute);
+			muted = 0;
 		}
 		else
 		{
@@ -137,7 +141,7 @@ namespace kLock
 			Shell_NotifyIcon(NIM_DELETE, &tray);
 		}
 
-		//usuwamy z listy procesów
+		//jeœli jest zaznaczona opcja usuwamy z listy procesów
 		if(GETINT(kLock::Config::LockProcess))
 		{
 			HMODULE kernel;
@@ -151,6 +155,17 @@ namespace kLock
 					RegisterServiceProcess(GetCurrentProcessId(), 1);
 				}
 				FreeLibrary(kernel);
+			}
+		}
+
+		//wy³¹czamy kMigacza
+		{
+			migacz_msg = GETINT(CFG_MIG_MSG);
+			migacz_status = GETINT(CFG_MIG_STATUS);
+			if(GETINT(kLock::Config::LockkMigacz))
+			{
+				SETINT(CFG_MIG_MSG, 0);
+				SETINT(CFG_MIG_STATUS, 0);
 			}
 		}
 
@@ -198,20 +213,15 @@ namespace kLock
 				}
 
 				//pokazujemy g³ówne okno - nowy proc powinien na to pozwoliæ
+				if(main_visible)
 				{
-					if(main_visible)
-					{
-						ShowWindow((HWND)UIGroupHandle(sUIAction(0, IMIG_MAINWND)), SW_SHOW);
-					}
+					ShowWindow((HWND)UIGroupHandle(sUIAction(0, IMIG_MAINWND)), SW_SHOW);
 				}
 
 				//wy³aczamy wyciszenie dŸwiêków
-				if(GETINT(kLock::Config::LockSound))
+				if(GETINT(kLock::Config::LockSound) && !muted)
 				{
-					if(!muted)
-					{
-						CallAction(Ctrl->IMessage(IMI_GETPLUGINSGROUP, 0, 0), kSound::action::mute);
-					}
+					CallAction(Ctrl->IMessage(IMI_GETPLUGINSGROUP, 0, 0), kSound::action::mute);
 				}
 
 				//przywracamy ikonkê do tray'a
@@ -242,6 +252,12 @@ namespace kLock
 						}
 						FreeLibrary(kernel);
 					}
+				}
+
+				//w³¹czamy kMigacza
+				{
+					SETINT(CFG_MIG_MSG, migacz_msg);
+					SETINT(CFG_MIG_STATUS, migacz_status);
 				}
 
 				//zmieniamy napis na przycisku
@@ -285,6 +301,7 @@ namespace kLock
 		UIActionSetStatus(sUIAction(kLock::Config::Group, kLock::Config::ButtonPlace3), 0, ACTS_DISABLED);
 		UIActionSetStatus(sUIAction(kLock::Config::Group, IMIB_CFG|kLock::Config::SynchronizeWithkAway), 0, ACTS_DISABLED);
 		UIActionSetStatus(sUIAction(kLock::Config::Group, IMIB_CFG|kLock::Config::LockKNotify), 0, ACTS_DISABLED);
+		UIActionSetStatus(sUIAction(kLock::Config::Group, IMIB_CFG|kLock::Config::LockkMigacz), 0, ACTS_DISABLED);
 		UIActionSetText(kLock::Config::Group, kLock::Config::EnableActs, "Deaktywuj opcje" AP_ICO "41");
 		acts_enabled = 1;
 	}
@@ -304,6 +321,7 @@ namespace kLock
 		UIActionSetStatus(sUIAction(kLock::Config::Group, kLock::Config::ButtonPlace3), -1, ACTS_DISABLED);
 		UIActionSetStatus(sUIAction(kLock::Config::Group, IMIB_CFG|kLock::Config::SynchronizeWithkAway), -1, ACTS_DISABLED);
 		UIActionSetStatus(sUIAction(kLock::Config::Group, IMIB_CFG|kLock::Config::LockKNotify), -1, ACTS_DISABLED);
+		UIActionSetStatus(sUIAction(kLock::Config::Group, IMIB_CFG|kLock::Config::LockkMigacz), -1, ACTS_DISABLED);
 		UIActionSetText(kLock::Config::Group, kLock::Config::EnableActs, "Aktywuj opcje" AP_ICO "40");
 		acts_enabled = 0;
 	}
