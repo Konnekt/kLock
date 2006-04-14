@@ -19,6 +19,7 @@
 #include <konnekt/kSound.h>
 #include <konnekt/lib.h>
 #include <konnekt/kAway2.h>
+#include <konnekt/KNotify.h>
 
 //wewnêtrzne
 #include "types.h"

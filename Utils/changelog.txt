@@ -1,12 +1,10 @@
 Nowoœci:
--Ukrywanie ikonki w tray'u
--Ukrywanie Konnekta na liœcie procesów (tylko Win98)
--Blokowanie powiadomieñ kNotify
--Synchronizacja z kAway2
--Mo¿liwoœæ wyboru, gdzie ma byæ przycisk blokuj¹cy
+
 
 Poprawki:
--Poprawki przywracania okienka i wyciszania
--Poprawki zmieniania napisu na przycisku "Zablokuj"
+-Poprawki w kodzie (Sija)
+-Poprawiony b³¹d z wyborem miejsca przycisku
 
 Usprawnienia:
+-Poprawione usability przycisku odblokowuj¹cego opcje
+-Wtyczka sprawdza czy wymagane wtyczki s¹ w³¹czone i odpowiednio wyœwietla opcje

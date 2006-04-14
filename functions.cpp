@@ -285,7 +285,7 @@ namespace kLock
 		UIActionSetStatus(sUIAction(kLock::Config::Group, kLock::Config::ButtonPlace3), 0, ACTS_DISABLED);
 		UIActionSetStatus(sUIAction(kLock::Config::Group, IMIB_CFG|kLock::Config::SynchronizeWithkAway), 0, ACTS_DISABLED);
 		UIActionSetStatus(sUIAction(kLock::Config::Group, IMIB_CFG|kLock::Config::LockKNotify), 0, ACTS_DISABLED);
-		UIActionSetText(kLock::Config::Group, kLock::Config::EnableActs, "Deaktywuj" AP_ICO "41");
+		UIActionSetText(kLock::Config::Group, kLock::Config::EnableActs, "Deaktywuj opcje" AP_ICO "41");
 		acts_enabled = 1;
 	}
 
@@ -304,7 +304,7 @@ namespace kLock
 		UIActionSetStatus(sUIAction(kLock::Config::Group, kLock::Config::ButtonPlace3), -1, ACTS_DISABLED);
 		UIActionSetStatus(sUIAction(kLock::Config::Group, IMIB_CFG|kLock::Config::SynchronizeWithkAway), -1, ACTS_DISABLED);
 		UIActionSetStatus(sUIAction(kLock::Config::Group, IMIB_CFG|kLock::Config::LockKNotify), -1, ACTS_DISABLED);
-		UIActionSetText(kLock::Config::Group, kLock::Config::EnableActs, "Aktywuj" AP_ICO "40");
+		UIActionSetText(kLock::Config::Group, kLock::Config::EnableActs, "Aktywuj opcje" AP_ICO "40");
 		acts_enabled = 0;
 	}
 }

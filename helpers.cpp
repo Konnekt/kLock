@@ -38,4 +38,9 @@ namespace kLock
 
 		return prevOwner;
 	}
+
+	int PluginExists(int net, int type)
+	{
+		return(Ctrl->ICMessage(IMC_FINDPLUG, net, type));
+	}
 }
