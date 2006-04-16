@@ -36,7 +36,7 @@ namespace kLock
 				{
 					return 0;
 				}
-				if(!strlen(sde.pass))
+				if(strlen(sde.pass))
 				{
 					break;
 				}
@@ -100,7 +100,12 @@ namespace kLock
 		//konfiguracja
 		UIGroupAdd(IMIG_CFG_PLUGS, kLock::Config::Group, 0, "kLock", 35);
 		{
-			UIActionCfgAddPluginInfoBox2(kLock::Config::Group, "Wtyczka ma za zadanie blokowaæ Konnekta, aby nikt niepowo³any nie dosta³ siê do ¿adnych przechowywanych w nim informacji.", "Podstawa: <b>Kamil \"Olórin\" Figiela</b><br />Dalszy rozwój: <b>Micha³ \"Dulek\" Dulko</b><br />Skompilowano: <b>"__TIME__"@"__DATE__"</b>");
+			UIActionCfgAddPluginInfoBox2(kLock::Config::Group, 
+        "Wtyczka ma za zadanie blokowaæ Konnekta, aby nikt niepowo³any nie dosta³ siê do ¿adnych przechowywanych w nim informacji.", 
+        "<span class='note'>Skompilowano: <b>"__TIME__" @ "__DATE__"</b></span><br/><br/>"
+        "Copyright © 2006 <b>Micha³ \"Dulek\" Dulko</b><br/>"
+        "Copyright © 2006 <b>Kamil \"Olórin\" Figiela</b>"
+      );
 			
 			UIActionCfgAdd(kLock::Config::Group, 0, ACTT_GROUP, "Blokada opcji");
 			{
