@@ -4,7 +4,7 @@
 	Version="7.10"
 	Name="kLock"
 	ProjectGUID="{7C0BA9C9-46EA-42AC-AF35-8FA3A7353F3D}"
-	RootNamespace="krss"
+	RootNamespace="kLock"
 	Keyword="Win32Proj">
 	<Platforms>
 		<Platform
@@ -21,7 +21,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories=""
-				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;KRSS_EXPORTS"
+				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;KLOCK_EXPORTS"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -37,13 +37,15 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="iconv.lib libxml2.lib"
+				AdditionalOptions="/FORCE"
+				AdditionalDependencies=""
 				OutputFile="$(OutDir)/kLock_d.dll"
 				LinkIncremental="1"
 				IgnoreAllDefaultLibraries="FALSE"
 				IgnoreDefaultLibraryNames=""
-				GenerateDebugInformation="FALSE"
+				GenerateDebugInformation="TRUE"
 				ProgramDatabaseFile="$(IntDir)/klock.pdb"
+				GenerateMapFile="FALSE"
 				SubSystem="2"
 				ImportLibrary="$(IntDir)/klock.lib"
 				TargetMachine="1"/>
@@ -79,7 +81,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="3"
-				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;KRSS_EXPORTS"
+				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;KLOCK_EXPORTS"
 				RuntimeLibrary="2"
 				UsePrecompiledHeader="1"
 				PrecompiledHeaderThrough="includes.h"
@@ -93,7 +95,8 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="iconv.lib libxml2.lib"
+				AdditionalOptions="/FORCE"
+				AdditionalDependencies=""
 				OutputFile="$(OutDir)/kLock.dll"
 				LinkIncremental="1"
 				GenerateDebugInformation="FALSE"
@@ -207,8 +210,5 @@ rmdir /S /Q plugins
 		</Filter>
 	</Files>
 	<Globals>
-		<Global
-			Name="RESOURCE_FILE"
-			Value="\Documents and Settings\Michal\Moje dokumenty\C++\Projects\kRSS\Resources\resources.rc"/>
 	</Globals>
 </VisualStudioProject>

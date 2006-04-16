@@ -91,7 +91,8 @@ namespace kLock
 			int count = ICMessage(IMC_CNT_COUNT);
 			for(int i = 0; i < count; i++)
 			{					
-				if(UIGroupHandle(sUIAction(0, IMIG_MSGWND, Ctrl->DTgetID(DTCNT, i))) && GetProp((HWND)UIGroupHandle(sUIAction(0, IMIG_MSGWND, Ctrl->DTgetID(DTCNT, i))), "TABBED") == 0)
+				if(UIGroupHandle(sUIAction(0, IMIG_MSGWND, Ctrl->DTgetID(DTCNT, i))) && 
+          GetProp((HWND)UIGroupHandle(sUIAction(0, IMIG_MSGWND, Ctrl->DTgetID(DTCNT, i))), "TABBED") == 0)
 				{
 					LockedWindow w;
 					w.cnt = Ctrl->DTgetID(DTCNT, i);
@@ -170,15 +171,11 @@ namespace kLock
 		}
 
 		//zmieniamy napis na przycisku
-		if(GETINT(kLock::Config::ButtonPlace) == 0)
+		if(GETINT(kLock::Config::ButtonOnToolbar))
 		{
 			UIActionSetText(Ctrl->IMessage(IMI_GETPLUGINSGROUP, 0, 0), kLock::Acts::Lock, "Zablokuj");
 		}
-		else if(GETINT(kLock::Config::ButtonPlace) == 1)
-		{
-			UIActionSetText(IMIG_MAINTB, kLock::Acts::Lock, "Zablokuj");
-		}
-		else if(GETINT(kLock::Config::ButtonPlace) == 2)
+		if(GETINT(kLock::Config::ButtonInTray))
 		{
 			UIActionSetText(IMIG_TRAY, kLock::Acts::Lock, "Zablokuj");
 		}
@@ -201,7 +198,8 @@ namespace kLock
 					for(iter = kLock::locked_windows.begin(); iter != kLock::locked_windows.end(); iter++)
 					{
 						CallAction(IMIG_CNT, Tabs::Acts::Detach, iter->cnt);			
-						SetWindowPos((HWND)UIGroupHandle(sUIAction(0, IMIG_MSGWND, iter->cnt)),0, iter->r.left, iter->r.top, iter->r.right - iter->r.left, iter->r.bottom - iter->r.top, 0);
+						SetWindowPos((HWND)UIGroupHandle(sUIAction(0, IMIG_MSGWND, iter->cnt)),0, 
+              iter->r.left, iter->r.top, iter->r.right - iter->r.left, iter->r.bottom - iter->r.top, 0);
 						SetWindowPlacement((HWND)UIGroupHandle(sUIAction(0, IMIG_MSGWND, iter->cnt)), &iter->placement);
 					}
 					kLock::locked_windows.clear();
@@ -261,15 +259,11 @@ namespace kLock
 				}
 
 				//zmieniamy napis na przycisku
-				if(GETINT(kLock::Config::ButtonPlace) == 0)
+				if(GETINT(kLock::Config::ButtonOnToolbar))
 				{
 					UIActionSetText(Ctrl->IMessage(IMI_GETPLUGINSGROUP, 0, 0), kLock::Acts::Lock, "Odblokuj");
 				}
-				else if(GETINT(kLock::Config::ButtonPlace) == 1)
-				{
-					UIActionSetText(IMIG_MAINTB, kLock::Acts::Lock, "Odblokuj");
-				}
-				else if(GETINT(kLock::Config::ButtonPlace) == 2)
+				if(GETINT(kLock::Config::ButtonInTray))
 				{
 					UIActionSetText(IMIG_TRAY, kLock::Acts::Lock, "Odblokuj");
 				}
@@ -288,40 +282,40 @@ namespace kLock
 
 	void EnableActs()
 	{
-		UIActionSetStatus(sUIAction(kLock::Config::Group, IMIB_CFG|kLock::Config::Password), 0, ACTS_DISABLED);
-		UIActionSetStatus(sUIAction(kLock::Config::Group, IMIB_CFG|kLock::Config::AskForPasswordOnHistory), 0, ACTS_DISABLED);
-		UIActionSetStatus(sUIAction(kLock::Config::Group, IMIB_CFG|kLock::Config::LockMainWindow), 0, ACTS_DISABLED);
-		UIActionSetStatus(sUIAction(kLock::Config::Group, IMIB_CFG|kLock::Config::LockSound), 0, ACTS_DISABLED);
-		UIActionSetStatus(sUIAction(kLock::Config::Group, IMIB_CFG|kLock::Config::LockTalkWindows), 0, ACTS_DISABLED);
-		UIActionSetStatus(sUIAction(kLock::Config::Group, IMIB_CFG|kLock::Config::SynchronizeWithAway), 0, ACTS_DISABLED);
-		UIActionSetStatus(sUIAction(kLock::Config::Group, IMIB_CFG|kLock::Config::LockTray), 0, ACTS_DISABLED);
-		UIActionSetStatus(sUIAction(kLock::Config::Group, IMIB_CFG|kLock::Config::LockProcess), 0, ACTS_DISABLED);
-		UIActionSetStatus(sUIAction(kLock::Config::Group, kLock::Config::ButtonPlace1), 0, ACTS_DISABLED);
-		UIActionSetStatus(sUIAction(kLock::Config::Group, kLock::Config::ButtonPlace2), 0, ACTS_DISABLED);
-		UIActionSetStatus(sUIAction(kLock::Config::Group, kLock::Config::ButtonPlace3), 0, ACTS_DISABLED);
-		UIActionSetStatus(sUIAction(kLock::Config::Group, IMIB_CFG|kLock::Config::SynchronizeWithkAway), 0, ACTS_DISABLED);
-		UIActionSetStatus(sUIAction(kLock::Config::Group, IMIB_CFG|kLock::Config::LockKNotify), 0, ACTS_DISABLED);
-		UIActionSetStatus(sUIAction(kLock::Config::Group, IMIB_CFG|kLock::Config::LockkMigacz), 0, ACTS_DISABLED);
+		UIActionSetStatus(sUIAction(kLock::Config::Group, kLock::Config::Password), 0, ACTS_DISABLED);
+		UIActionSetStatus(sUIAction(kLock::Config::Group, kLock::Config::AskForPasswordOnHistory), 0, ACTS_DISABLED);
+		UIActionSetStatus(sUIAction(kLock::Config::Group, kLock::Config::LockMainWindow), 0, ACTS_DISABLED);
+		UIActionSetStatus(sUIAction(kLock::Config::Group, kLock::Config::LockSound), 0, ACTS_DISABLED);
+		UIActionSetStatus(sUIAction(kLock::Config::Group, kLock::Config::LockTalkWindows), 0, ACTS_DISABLED);
+		UIActionSetStatus(sUIAction(kLock::Config::Group, kLock::Config::SynchronizeWithAway), 0, ACTS_DISABLED);
+		UIActionSetStatus(sUIAction(kLock::Config::Group, kLock::Config::LockTray), 0, ACTS_DISABLED);
+		UIActionSetStatus(sUIAction(kLock::Config::Group, kLock::Config::LockProcess), 0, ACTS_DISABLED);
+		UIActionSetStatus(sUIAction(kLock::Config::Group, kLock::Config::ButtonInTray), 0, ACTS_DISABLED);
+		UIActionSetStatus(sUIAction(kLock::Config::Group, kLock::Config::ButtonOnToolbar), 0, ACTS_DISABLED);
+		// UIActionSetStatus(sUIAction(kLock::Config::Group, kLock::Config::ButtonPlace3), 0, ACTS_DISABLED);
+		UIActionSetStatus(sUIAction(kLock::Config::Group, kLock::Config::SynchronizeWithkAway), 0, ACTS_DISABLED);
+		UIActionSetStatus(sUIAction(kLock::Config::Group, kLock::Config::LockKNotify), 0, ACTS_DISABLED);
+		UIActionSetStatus(sUIAction(kLock::Config::Group, kLock::Config::LockkMigacz), 0, ACTS_DISABLED);
 		UIActionSetText(kLock::Config::Group, kLock::Config::EnableActs, "Deaktywuj opcje" AP_ICO "41");
 		acts_enabled = 1;
 	}
 
 	void DisableActs()
 	{
-		UIActionSetStatus(sUIAction(kLock::Config::Group, IMIB_CFG|kLock::Config::Password), -1, ACTS_DISABLED);
-		UIActionSetStatus(sUIAction(kLock::Config::Group, IMIB_CFG|kLock::Config::AskForPasswordOnHistory), -1, ACTS_DISABLED);
-		UIActionSetStatus(sUIAction(kLock::Config::Group, IMIB_CFG|kLock::Config::LockMainWindow), -1, ACTS_DISABLED);
-		UIActionSetStatus(sUIAction(kLock::Config::Group, IMIB_CFG|kLock::Config::LockSound), -1, ACTS_DISABLED);
-		UIActionSetStatus(sUIAction(kLock::Config::Group, IMIB_CFG|kLock::Config::LockTalkWindows), -1, ACTS_DISABLED);
-		UIActionSetStatus(sUIAction(kLock::Config::Group, IMIB_CFG|kLock::Config::SynchronizeWithAway), -1, ACTS_DISABLED);
-		UIActionSetStatus(sUIAction(kLock::Config::Group, IMIB_CFG|kLock::Config::LockTray), -1, ACTS_DISABLED);
-		UIActionSetStatus(sUIAction(kLock::Config::Group, IMIB_CFG|kLock::Config::LockProcess), -1, ACTS_DISABLED);
-		UIActionSetStatus(sUIAction(kLock::Config::Group, kLock::Config::ButtonPlace1), -1, ACTS_DISABLED);
-		UIActionSetStatus(sUIAction(kLock::Config::Group, kLock::Config::ButtonPlace2), -1, ACTS_DISABLED);
-		UIActionSetStatus(sUIAction(kLock::Config::Group, kLock::Config::ButtonPlace3), -1, ACTS_DISABLED);
-		UIActionSetStatus(sUIAction(kLock::Config::Group, IMIB_CFG|kLock::Config::SynchronizeWithkAway), -1, ACTS_DISABLED);
-		UIActionSetStatus(sUIAction(kLock::Config::Group, IMIB_CFG|kLock::Config::LockKNotify), -1, ACTS_DISABLED);
-		UIActionSetStatus(sUIAction(kLock::Config::Group, IMIB_CFG|kLock::Config::LockkMigacz), -1, ACTS_DISABLED);
+		UIActionSetStatus(sUIAction(kLock::Config::Group, kLock::Config::Password), -1, ACTS_DISABLED);
+		UIActionSetStatus(sUIAction(kLock::Config::Group, kLock::Config::AskForPasswordOnHistory), -1, ACTS_DISABLED);
+		UIActionSetStatus(sUIAction(kLock::Config::Group, kLock::Config::LockMainWindow), -1, ACTS_DISABLED);
+		UIActionSetStatus(sUIAction(kLock::Config::Group, kLock::Config::LockSound), -1, ACTS_DISABLED);
+		UIActionSetStatus(sUIAction(kLock::Config::Group, kLock::Config::LockTalkWindows), -1, ACTS_DISABLED);
+		UIActionSetStatus(sUIAction(kLock::Config::Group, kLock::Config::SynchronizeWithAway), -1, ACTS_DISABLED);
+		UIActionSetStatus(sUIAction(kLock::Config::Group, kLock::Config::LockTray), -1, ACTS_DISABLED);
+		UIActionSetStatus(sUIAction(kLock::Config::Group, kLock::Config::LockProcess), -1, ACTS_DISABLED);
+		UIActionSetStatus(sUIAction(kLock::Config::Group, kLock::Config::ButtonInTray), -1, ACTS_DISABLED);
+		UIActionSetStatus(sUIAction(kLock::Config::Group, kLock::Config::ButtonOnToolbar), -1, ACTS_DISABLED);
+		// UIActionSetStatus(sUIAction(kLock::Config::Group, kLock::Config::ButtonPlace3), -1, ACTS_DISABLED);
+		UIActionSetStatus(sUIAction(kLock::Config::Group, kLock::Config::SynchronizeWithkAway), -1, ACTS_DISABLED);
+		UIActionSetStatus(sUIAction(kLock::Config::Group, kLock::Config::LockKNotify), -1, ACTS_DISABLED);
+		UIActionSetStatus(sUIAction(kLock::Config::Group, kLock::Config::LockkMigacz), -1, ACTS_DISABLED);
 		UIActionSetText(kLock::Config::Group, kLock::Config::EnableActs, "Aktywuj opcje" AP_ICO "40");
 		acts_enabled = 0;
 	}

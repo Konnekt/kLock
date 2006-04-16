@@ -2,8 +2,6 @@
 //
 #include "resource.h"
 
-#include "../version.h"
-
 #define APSTUDIO_READONLY_SYMBOLS
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -45,11 +43,11 @@ BEGIN
     BEGIN
         BLOCK "041504b0"
         BEGIN
-            VALUE "CompanyName", "Kamil ""Olórin"" Figiela, Micha³ ""Dulek"" Dulko"
+            VALUE "CompanyName", "KPlugins Team"
             VALUE "FileDescription", "Wtyczka blokuj¹ca Konnekta na ¿¹danie"
             VALUE "FileVersion", STRFILEVER
             VALUE "InternalName", "kLock"
-            VALUE "LegalCopyright", "Copyright (C) 2005"
+            VALUE "LegalCopyright", "Copyright © 2006 KPlugins Team"
             VALUE "OriginalFilename", "kLock.dll"
             VALUE "ProductName", "kLock"
             VALUE "ProductVersion", STRPRODUCTVER
