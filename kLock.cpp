@@ -6,19 +6,6 @@ namespace kLock
 {
 	int IStart()
 	{
-    //sprawdzamy czy jest separator w menu
-		if(GETINT(kLock::Config::ButtonInTray))
-		{
-      int n = 0, sepCount = 0, btnsCount = Ctrl->IMessage(IMI_GROUP_ACTIONSCOUNT, 0, 0, (int)&sUIAction(IMIG_MAINWND, IMIG_TRAY));
-      for (int idx = (btnsCount - 1); idx > 0; idx--) {
-        if (!Ctrl->IMessage(IMI_ACTION_GETID, 0, 0, IMIG_TRAY, idx)) sepCount++;
-      }
-      //jeœli nie, to dodajemy, ¿eby "odci¹æ" siê akcji wtyczek sieciowych
-      if (sepCount < 2) {
-		    UIActionSetStatus(sUIAction(IMIG_TRAY, ACTT_SEP), 0, ACTS_HIDDEN);
-      }
-    }
-
 		sUIActionInfo nfo;
 
 		//subclassujemy akcjê historii
@@ -91,34 +78,42 @@ namespace kLock
 			Ctrl->SetColumn(DTCFG, kLock::Config::SynchronizeWithkAway, DT_CT_INT, 0, "kLock/SynchronizeWithkAway2");
 			Ctrl->SetColumn(DTCFG, kLock::Config::ButtonOnToolbar, DT_CT_INT, 0, "kLock/ButtonOnToolbar");
 			Ctrl->SetColumn(DTCFG, kLock::Config::ButtonInTray, DT_CT_INT, 1, "kLock/ButtonInTray");
+			Ctrl->SetColumn(DTCFG, kLock::Config::ButtonOnMainToolbar, DT_CT_INT, 0, "kLock/ButtonOnMainToolbar");
 		}
 		return 1;
 	}
 
 	int IPrepare()
 	{
-		//przycisk
+		//przycisk na toolbarze wtyczek
 		if(GETINT(kLock::Config::ButtonOnToolbar))
 		{
 			UIActionAdd(Ctrl->IMessage(IMI_GETPLUGINSGROUP, 0, 0), kLock::Acts::Lock, ACTR_INIT, "kLock", 35);
 		}
+
+		//przycisk w tray'u
 		if(GETINT(kLock::Config::ButtonInTray))
 		{
-      UIActionInsert(IMIG_TRAY, ACTT_SEP, 0, ACTT_SEP|ACTS_HIDDEN);
-			UIActionInsert(IMIG_TRAY, kLock::Acts::Lock, 0, ACTR_INIT, "kLock", 35);
+			UIActionInsert(IMIG_TRAY, kLock::Acts::Lock, Ctrl->IMessage(IMI_GROUP_ACTIONSCOUNT, 0, 0, (int)&sUIAction(IMIG_MAINWND, IMIG_TRAY)) - 1, ACTR_INIT, "kLock", 35);
+		}
+
+		//przycisk na g³ównym toolbarze
+		if(GETINT(kLock::Config::ButtonOnMainToolbar))
+		{
+			UIActionAdd(IMIG_MAINTB, kLock::Acts::Lock, ACTR_INIT, "kLock", 35);
 		}
 
 		//konfiguracja
 		UIGroupAdd(IMIG_CFG_PLUGS, kLock::Config::Group, 0, "kLock", 35);
 		{
 			UIActionCfgAddPluginInfoBox2(kLock::Config::Group, 
-        "Wtyczka ma za zadanie blokowaæ Konnekta, aby nikt niepowo³any nie dosta³ siê do ¿adnych przechowywanych w nim informacji.", 
-        "<span class='note'>Skompilowano: <b>"__DATE__"</b> [<b>"__TIME__"</b>]</span><br/><br/>"
-        "Copyright © 2006 <b>Micha³ \"Dulek\" Dulko</b><br/>"
-        "Copyright © 2006 <b>Sijawusz Pur Rahnama</b><br/>"
-        "Copyright © 2006 <b>Kamil \"Olórin\" Figiela</b>", "reg://IML16/35.ico"
-      );
-			
+				"Wtyczka ma za zadanie blokowaæ Konnekta, aby nikt niepowo³any nie dosta³ siê do ¿adnych przechowywanych w nim informacji.", 
+				"<span class='note'>Skompilowano: <b>"__DATE__"</b> [<b>"__TIME__"</b>]</span><br/><br/>"
+				"Copyright © 2006 <b>Micha³ \"Dulek\" Dulko</b><br/>"
+				"Copyright © 2006 <b>Sijawusz Pur Rahnama</b><br/>"
+				"Copyright © 2006 <b>Kamil \"Olórin\" Figiela</b>", "reg://IML16/35.ico"
+			);
+		
 			UIActionCfgAdd(kLock::Config::Group, 0, ACTT_GROUP, "Blokada opcji");
 			{
 				UIActionCfgAdd(kLock::Config::Group, kLock::Config::EnableActs, ACTT_BUTTON|ACTR_SHOW|ACTR_INIT, "Aktywuj opcje" AP_ICO "41");
@@ -127,26 +122,21 @@ namespace kLock
 
 			UIActionCfgAdd(kLock::Config::Group, 0, ACTT_GROUP, "Wybierz co blokowaæ");
 			{
-				UIActionCfgAdd(kLock::Config::Group, kLock::Config::LockMainWindow, ACTT_CHECK, "Blokuj okno g³ówne programu", 
-          kLock::Config::LockMainWindow);
-				UIActionCfgAdd(kLock::Config::Group, kLock::Config::LockTalkWindows, ACTT_CHECK, "Blokuj okienka rozmowy i historiê", 
-          kLock::Config::LockTalkWindows);
+				UIActionCfgAdd(kLock::Config::Group, kLock::Config::LockMainWindow, ACTT_CHECK, "Blokuj okno g³ówne programu", kLock::Config::LockMainWindow);
+				UIActionCfgAdd(kLock::Config::Group, kLock::Config::LockTalkWindows, ACTT_CHECK, "Blokuj okienka rozmowy i historiê", kLock::Config::LockTalkWindows);
 				UIActionCfgAdd(kLock::Config::Group, kLock::Config::LockTray, ACTT_CHECK, "Ukrywaj ikonkê w tray'u", kLock::Config::LockTray);
 				UIActionCfgAdd(kLock::Config::Group, kLock::Config::LockSound, ACTT_CHECK, "Wyciszaj dŸwiêki", kLock::Config::LockSound);
 				if(PluginExists(KNotify::net))
 				{
-					UIActionCfgAdd(kLock::Config::Group, kLock::Config::LockKNotify, ACTT_CHECK, "Blokuj powiadomienia kNotify" 
-            AP_TIPRICH "Wymaga zmodyfikowanego <b>kNotify</b>!", kLock::Config::LockKNotify);
+					UIActionCfgAdd(kLock::Config::Group, kLock::Config::LockKNotify, ACTT_CHECK, "Blokuj powiadomienia kNotify" AP_TIPRICH "Wymaga zmodyfikowanego <b>kNotify</b>!", kLock::Config::LockKNotify);
 				}
 				if(PluginExists(NET))
 				{
-					UIActionCfgAdd(kLock::Config::Group, kLock::Config::LockkMigacz, ACTT_CHECK, "Blokuj powiadomienia kMigacza", 
-            kLock::Config::LockkMigacz);
+					UIActionCfgAdd(kLock::Config::Group, kLock::Config::LockkMigacz, ACTT_CHECK, "Blokuj powiadomienia kMigacza", kLock::Config::LockkMigacz);
 				}
-        if(!Ctrl->ICMessage(IMC_ISWINXP))
+				if(!Ctrl->ICMessage(IMC_ISWINXP))
 				{
-				  UIActionCfgAdd(kLock::Config::Group, kLock::Config::LockProcess, ACTT_CHECK, "Ukrywaj Konnekta na liœcie procesów" 
-            AP_TIP "U¿ywaæ na w³asn¹ odpowiedzialnoœæ!", kLock::Config::LockProcess);
+					UIActionCfgAdd(kLock::Config::Group, kLock::Config::LockProcess, ACTT_CHECK, "Ukrywaj Konnekta na liœcie procesów" AP_TIP "U¿ywaæ na w³asn¹ odpowiedzialnoœæ!", kLock::Config::LockProcess);
 				}
 			}
 			UIActionCfgAdd(kLock::Config::Group, 0, ACTT_GROUPEND);
@@ -155,25 +145,21 @@ namespace kLock
 			{
 				UIActionCfgAdd(kLock::Config::Group, 0, ACTT_COMMENT|ACTSC_INLINE, "Has³o:");
 				UIActionCfgAdd(kLock::Config::Group, kLock::Config::Password, ACTT_PASSWORD, 0, kLock::Config::Password);
-				UIActionCfgAdd(kLock::Config::Group, kLock::Config::SynchronizeWithAway, ACTT_CHECK, "Synchronizuj z trybem auto-away", 
-          kLock::Config::SynchronizeWithAway);
+				UIActionCfgAdd(kLock::Config::Group, kLock::Config::SynchronizeWithAway, ACTT_CHECK, "Synchronizuj z trybem auto-away", kLock::Config::SynchronizeWithAway);
 				if(PluginExists(kAway2::net))
 				{
-					UIActionCfgAdd(kLock::Config::Group, kLock::Config::SynchronizeWithkAway, ACTT_CHECK, "Synchronizuj z kAway2", 
-            kLock::Config::SynchronizeWithkAway);
+					UIActionCfgAdd(kLock::Config::Group, kLock::Config::SynchronizeWithkAway, ACTT_CHECK, "Synchronizuj z kAway2", kLock::Config::SynchronizeWithkAway);
 				}
-				UIActionCfgAdd(kLock::Config::Group, kLock::Config::AskForPasswordOnHistory, ACTT_CHECK, 
-          "Pytaj o has³o przy ka¿dej próbie dostêpu do historii", kLock::Config::AskForPasswordOnHistory);
+				UIActionCfgAdd(kLock::Config::Group, kLock::Config::AskForPasswordOnHistory, ACTT_CHECK, "Pytaj o has³o przy ka¿dej próbie dostêpu do historii", kLock::Config::AskForPasswordOnHistory);
 				UIActionCfgAdd(kLock::Config::Group, 0, ACTT_SEP, "Po³o¿enie przycisku");
-				UIActionCfgAdd(kLock::Config::Group, kLock::Config::ButtonOnToolbar, ACTT_CHECK|ACTSC_NEEDRESTART, 
-          "W menu wtyczek", kLock::Config::ButtonOnToolbar);
-				UIActionCfgAdd(kLock::Config::Group, kLock::Config::ButtonInTray, ACTT_CHECK|ACTSC_NEEDRESTART, 
-          "W menu tray'a", kLock::Config::ButtonInTray);
+				UIActionCfgAdd(kLock::Config::Group, kLock::Config::ButtonOnToolbar, ACTT_CHECK|ACTSC_NEEDRESTART, "W menu wtyczek", kLock::Config::ButtonOnToolbar);
+				UIActionCfgAdd(kLock::Config::Group, kLock::Config::ButtonInTray, ACTT_CHECK|ACTSC_NEEDRESTART, "W menu tray'a", kLock::Config::ButtonInTray);
+				UIActionCfgAdd(kLock::Config::Group, kLock::Config::ButtonOnMainToolbar, ACTT_CHECK|ACTSC_NEEDRESTART, "Na g³ównym toolbarze", kLock::Config::ButtonOnMainToolbar);
 			}
 			UIActionCfgAdd(kLock::Config::Group, 0, ACTT_GROUPEND);
 		}
 
-    DisableActs();
+		DisableActs();
 		return 1;
 	}
 
@@ -247,8 +233,7 @@ namespace kLock
 				{
 					if(!acts_enabled)
 					{
-						if(AskForPassword("kLock", "Zmiana ustawieñ jest zablokowana.\r\nPodaj has³o dostêpu:", 
-              (HWND)UIGroupHandle(sUIAction(0, IMIG_CFGWND))))
+						if(AskForPassword("kLock", "Zmiana ustawieñ jest zablokowana.\r\nPodaj has³o dostêpu:", (HWND)UIGroupHandle(sUIAction(0, IMIG_CFGWND))))
 						{
 							EnableActs();
 						}
@@ -290,8 +275,7 @@ namespace kLock
 				ACTIONONLY(anBase);
 				if(*UIActionCfgGetValue(anBase->act, 0, 0) != '0')
 				{
-					ICMessage(IMI_WARNING, (int)"Przed w³¹czeniem tej opcji ustaw odblokowuj¹cy skrót k.Lawy\n"
-            "- inaczej nie odblokujesz Konnekta.");
+					ICMessage(IMI_WARNING, (int)"Przed w³¹czeniem tej opcji ustaw odblokowuj¹cy skrót k.Lawy\n - inaczej nie odblokujesz Konnekta.");
 				}
 			}
 		}
@@ -319,14 +303,11 @@ int __stdcall IMessageProc(sIMessage_base * msgBase)
 		}
 		case kLock::Api::IsUnlockedForKNotify:
 		{
-			if(GETINT(kLock::Config::State) == 1 && GETINT(kLock::Config::LockKNotify))
-			{
-				return 0;
-			}
-			else
-			{
-				return 1;
-			}
+			return !(GETINT(kLock::Config::State) == 1 && GETINT(kLock::Config::LockKNotify));
+		}
+		case kLock::Api::IsUnlockedForkMigacz:
+		{
+				return !(GETINT(kLock::Config::State) == 1 && GETINT(kLock::Config::LockkMigacz));
 		}
 		case kLock::Api::IsUnlocked:
 		{
@@ -341,8 +322,8 @@ int __stdcall IMessageProc(sIMessage_base * msgBase)
 		{
 			if(!PluginExists(Tabs::net))
 			{
-        Ctrl->IMessage(&sIMessage_plugOut(Ctrl->ID(), "Wtyczka kLock nie bêdzie dzia³aæ bez wtyczki tabletKa!", 
-          sIMessage_plugOut::erYes, sIMessage_plugOut::euNowAndOnNextStart));
+				Ctrl->IMessage(&sIMessage_plugOut(Ctrl->ID(), "Wtyczka kLock nie bêdzie dzia³aæ bez wtyczki tabletKa!", 
+				sIMessage_plugOut::erYes, sIMessage_plugOut::euNowAndOnNextStart));
 				return -1;
 			}
 			return 0;

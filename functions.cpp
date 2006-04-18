@@ -90,9 +90,8 @@ namespace kLock
 		{
 			int count = ICMessage(IMC_CNT_COUNT);
 			for(int i = 0; i < count; i++)
-			{					
-				if(UIGroupHandle(sUIAction(0, IMIG_MSGWND, Ctrl->DTgetID(DTCNT, i))) && 
-          GetProp((HWND)UIGroupHandle(sUIAction(0, IMIG_MSGWND, Ctrl->DTgetID(DTCNT, i))), "TABBED") == 0)
+			{
+				if(UIGroupHandle(sUIAction(0, IMIG_MSGWND, Ctrl->DTgetID(DTCNT, i))) && GetProp((HWND)UIGroupHandle(sUIAction(0, IMIG_MSGWND, Ctrl->DTgetID(DTCNT, i))), "TABBED") == 0)
 				{
 					LockedWindow w;
 					w.cnt = Ctrl->DTgetID(DTCNT, i);
@@ -159,17 +158,6 @@ namespace kLock
 			}
 		}
 
-		//wy³¹czamy kMigacza
-		{
-			migacz_msg = GETINT(CFG_MIG_MSG);
-			migacz_status = GETINT(CFG_MIG_STATUS);
-			if(GETINT(kLock::Config::LockkMigacz))
-			{
-				SETINT(CFG_MIG_MSG, 0);
-				SETINT(CFG_MIG_STATUS, 0);
-			}
-		}
-
 		//zmieniamy napis na przycisku
 		if(GETINT(kLock::Config::ButtonOnToolbar))
 		{
@@ -178,6 +166,10 @@ namespace kLock
 		if(GETINT(kLock::Config::ButtonInTray))
 		{
 			UIActionSetText(IMIG_TRAY, kLock::Acts::Lock, "Zablokuj");
+		}
+		if(GETINT(kLock::Config::ButtonOnMainToolbar))
+		{
+			UIActionSetText(IMIG_MAINTB, kLock::Acts::Lock, "Zablokuj");
 		}
 	}
 
@@ -198,8 +190,7 @@ namespace kLock
 					for(iter = kLock::locked_windows.begin(); iter != kLock::locked_windows.end(); iter++)
 					{
 						CallAction(IMIG_CNT, Tabs::Acts::Detach, iter->cnt);			
-						SetWindowPos((HWND)UIGroupHandle(sUIAction(0, IMIG_MSGWND, iter->cnt)),0, 
-              iter->r.left, iter->r.top, iter->r.right - iter->r.left, iter->r.bottom - iter->r.top, 0);
+						SetWindowPos((HWND)UIGroupHandle(sUIAction(0, IMIG_MSGWND, iter->cnt)), 0, iter->r.left, iter->r.top, iter->r.right - iter->r.left, iter->r.bottom - iter->r.top, 0);
 						SetWindowPlacement((HWND)UIGroupHandle(sUIAction(0, IMIG_MSGWND, iter->cnt)), &iter->placement);
 					}
 					kLock::locked_windows.clear();
@@ -252,12 +243,6 @@ namespace kLock
 					}
 				}
 
-				//w³¹czamy kMigacza
-				{
-					SETINT(CFG_MIG_MSG, migacz_msg);
-					SETINT(CFG_MIG_STATUS, migacz_status);
-				}
-
 				//zmieniamy napis na przycisku
 				if(GETINT(kLock::Config::ButtonOnToolbar))
 				{
@@ -266,6 +251,10 @@ namespace kLock
 				if(GETINT(kLock::Config::ButtonInTray))
 				{
 					UIActionSetText(IMIG_TRAY, kLock::Acts::Lock, "Odblokuj");
+				}
+				if(GETINT(kLock::Config::ButtonOnMainToolbar))
+				{
+					UIActionSetText(IMIG_MAINTB, kLock::Acts::Lock, "Odblokuj");
 				}
 				return 1;
 			}
@@ -292,7 +281,7 @@ namespace kLock
 		UIActionSetStatus(sUIAction(kLock::Config::Group, kLock::Config::LockProcess), 0, ACTS_DISABLED);
 		UIActionSetStatus(sUIAction(kLock::Config::Group, kLock::Config::ButtonInTray), 0, ACTS_DISABLED);
 		UIActionSetStatus(sUIAction(kLock::Config::Group, kLock::Config::ButtonOnToolbar), 0, ACTS_DISABLED);
-		// UIActionSetStatus(sUIAction(kLock::Config::Group, kLock::Config::ButtonPlace3), 0, ACTS_DISABLED);
+		UIActionSetStatus(sUIAction(kLock::Config::Group, kLock::Config::ButtonOnMainToolbar), 0, ACTS_DISABLED);
 		UIActionSetStatus(sUIAction(kLock::Config::Group, kLock::Config::SynchronizeWithkAway), 0, ACTS_DISABLED);
 		UIActionSetStatus(sUIAction(kLock::Config::Group, kLock::Config::LockKNotify), 0, ACTS_DISABLED);
 		UIActionSetStatus(sUIAction(kLock::Config::Group, kLock::Config::LockkMigacz), 0, ACTS_DISABLED);
@@ -312,7 +301,7 @@ namespace kLock
 		UIActionSetStatus(sUIAction(kLock::Config::Group, kLock::Config::LockProcess), -1, ACTS_DISABLED);
 		UIActionSetStatus(sUIAction(kLock::Config::Group, kLock::Config::ButtonInTray), -1, ACTS_DISABLED);
 		UIActionSetStatus(sUIAction(kLock::Config::Group, kLock::Config::ButtonOnToolbar), -1, ACTS_DISABLED);
-		// UIActionSetStatus(sUIAction(kLock::Config::Group, kLock::Config::ButtonPlace3), -1, ACTS_DISABLED);
+		UIActionSetStatus(sUIAction(kLock::Config::Group, kLock::Config::ButtonOnMainToolbar), -1, ACTS_DISABLED);
 		UIActionSetStatus(sUIAction(kLock::Config::Group, kLock::Config::SynchronizeWithkAway), -1, ACTS_DISABLED);
 		UIActionSetStatus(sUIAction(kLock::Config::Group, kLock::Config::LockKNotify), -1, ACTS_DISABLED);
 		UIActionSetStatus(sUIAction(kLock::Config::Group, kLock::Config::LockkMigacz), -1, ACTS_DISABLED);
