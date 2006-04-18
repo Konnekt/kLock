@@ -130,7 +130,7 @@ namespace kLock
 				{
 					UIActionCfgAdd(kLock::Config::Group, kLock::Config::LockKNotify, ACTT_CHECK, "Blokuj powiadomienia kNotify" AP_TIPRICH "Wymaga zmodyfikowanego <b>kNotify</b>!", kLock::Config::LockKNotify);
 				}
-				if(PluginExists(NET))
+				if(PluginExists(kMigacz::Net))
 				{
 					UIActionCfgAdd(kLock::Config::Group, kLock::Config::LockkMigacz, ACTT_CHECK, "Blokuj powiadomienia kMigacza", kLock::Config::LockkMigacz);
 				}

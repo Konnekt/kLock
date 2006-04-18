@@ -161,15 +161,15 @@ namespace kLock
 		//zmieniamy napis na przycisku
 		if(GETINT(kLock::Config::ButtonOnToolbar))
 		{
-			UIActionSetText(Ctrl->IMessage(IMI_GETPLUGINSGROUP, 0, 0), kLock::Acts::Lock, "Zablokuj");
+			UIActionSetText(Ctrl->IMessage(IMI_GETPLUGINSGROUP, 0, 0), kLock::Acts::Lock, "Odblokuj");
 		}
 		if(GETINT(kLock::Config::ButtonInTray))
 		{
-			UIActionSetText(IMIG_TRAY, kLock::Acts::Lock, "Zablokuj");
+			UIActionSetText(IMIG_TRAY, kLock::Acts::Lock, "Odblokuj");
 		}
 		if(GETINT(kLock::Config::ButtonOnMainToolbar))
 		{
-			UIActionSetText(IMIG_MAINTB, kLock::Acts::Lock, "Zablokuj");
+			UIActionSetText(IMIG_MAINTB, kLock::Acts::Lock, "Odblokuj");
 		}
 	}
 
@@ -246,15 +246,15 @@ namespace kLock
 				//zmieniamy napis na przycisku
 				if(GETINT(kLock::Config::ButtonOnToolbar))
 				{
-					UIActionSetText(Ctrl->IMessage(IMI_GETPLUGINSGROUP, 0, 0), kLock::Acts::Lock, "Odblokuj");
+					UIActionSetText(Ctrl->IMessage(IMI_GETPLUGINSGROUP, 0, 0), kLock::Acts::Lock, "Zablokuj");
 				}
 				if(GETINT(kLock::Config::ButtonInTray))
 				{
-					UIActionSetText(IMIG_TRAY, kLock::Acts::Lock, "Odblokuj");
+					UIActionSetText(IMIG_TRAY, kLock::Acts::Lock, "Zablokuj");
 				}
 				if(GETINT(kLock::Config::ButtonOnMainToolbar))
 				{
-					UIActionSetText(IMIG_MAINTB, kLock::Acts::Lock, "Odblokuj");
+					UIActionSetText(IMIG_MAINTB, kLock::Acts::Lock, "Zablokuj");
 				}
 				return 1;
 			}
