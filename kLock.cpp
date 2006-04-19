@@ -6,8 +6,6 @@ namespace kLock
 {
 	int IStart()
 	{
-		sUIActionInfo nfo;
-
 		//subclassujemy akcjê historii
 		kLock::history_owner = SubclassAction(IMIG_MAIN_CNT, IMIA_MAIN_HISTORY);
 
@@ -352,6 +350,9 @@ int __stdcall IMessageProc(sIMessage_base * msgBase)
 		case IM_END: return IEnd();
 		case IM_UIACTION: return ActionProc((sUIActionNotify_base*)msg->p1);
 	}
-	if (Ctrl) Ctrl->setError(IMERROR_NORESULT);
+	if(Ctrl)
+	{
+		Ctrl->setError(IMERROR_NORESULT);
+	}
 	return 0;
 }
