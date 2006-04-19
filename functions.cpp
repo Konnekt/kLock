@@ -243,6 +243,12 @@ namespace kLock
 					}
 				}
 
+				//wy³¹czamy kAway2
+				if(GETINT(kLock::Config::TurnOffkAwayOnUnlocking))
+				{
+					Ctrl->IMessage(kAway2::api::disable, kAway2::net, IMT_ALL, (int)"");
+				}
+
 				//zmieniamy napis na przycisku
 				if(GETINT(kLock::Config::ButtonOnToolbar))
 				{
@@ -285,6 +291,7 @@ namespace kLock
 		UIActionSetStatus(sUIAction(kLock::Config::Group, kLock::Config::SynchronizeWithkAway), 0, ACTS_DISABLED);
 		UIActionSetStatus(sUIAction(kLock::Config::Group, kLock::Config::LockKNotify), 0, ACTS_DISABLED);
 		UIActionSetStatus(sUIAction(kLock::Config::Group, kLock::Config::LockkMigacz), 0, ACTS_DISABLED);
+		UIActionSetStatus(sUIAction(kLock::Config::Group, kLock::Config::TurnOffkAwayOnUnlocking), 0, ACTS_DISABLED);
 		UIActionSetText(kLock::Config::Group, kLock::Config::EnableActs, "Deaktywuj opcje" AP_ICO "41");
 		acts_enabled = 1;
 	}
@@ -305,6 +312,7 @@ namespace kLock
 		UIActionSetStatus(sUIAction(kLock::Config::Group, kLock::Config::SynchronizeWithkAway), -1, ACTS_DISABLED);
 		UIActionSetStatus(sUIAction(kLock::Config::Group, kLock::Config::LockKNotify), -1, ACTS_DISABLED);
 		UIActionSetStatus(sUIAction(kLock::Config::Group, kLock::Config::LockkMigacz), -1, ACTS_DISABLED);
+		UIActionSetStatus(sUIAction(kLock::Config::Group, kLock::Config::TurnOffkAwayOnUnlocking), -1, ACTS_DISABLED);
 		UIActionSetText(kLock::Config::Group, kLock::Config::EnableActs, "Aktywuj opcje" AP_ICO "40");
 		acts_enabled = 0;
 	}

@@ -79,6 +79,7 @@ namespace kLock
 			Ctrl->SetColumn(DTCFG, kLock::Config::ButtonOnToolbar, DT_CT_INT, 0, "kLock/ButtonOnToolbar");
 			Ctrl->SetColumn(DTCFG, kLock::Config::ButtonInTray, DT_CT_INT, 1, "kLock/ButtonInTray");
 			Ctrl->SetColumn(DTCFG, kLock::Config::ButtonOnMainToolbar, DT_CT_INT, 0, "kLock/ButtonOnMainToolbar");
+			Ctrl->SetColumn(DTCFG, kLock::Config::TurnOffkAwayOnUnlocking, DT_CT_INT, 0, "kLock/TurnOffkAwayOnUnlocking");
 		}
 		return 1;
 	}
@@ -149,6 +150,7 @@ namespace kLock
 				if(PluginExists(kAway2::net))
 				{
 					UIActionCfgAdd(kLock::Config::Group, kLock::Config::SynchronizeWithkAway, ACTT_CHECK, "Synchronizuj z kAway2", kLock::Config::SynchronizeWithkAway);
+					UIActionCfgAdd(kLock::Config::Group, kLock::Config::TurnOffkAwayOnUnlocking, ACTT_CHECK, "Wy³¹czaj kAway2 przy odblokowywaniu", kLock::Config::TurnOffkAwayOnUnlocking);
 				}
 				UIActionCfgAdd(kLock::Config::Group, kLock::Config::AskForPasswordOnHistory, ACTT_CHECK, "Pytaj o has³o przy ka¿dej próbie dostêpu do historii", kLock::Config::AskForPasswordOnHistory);
 				UIActionCfgAdd(kLock::Config::Group, 0, ACTT_SEP, "Po³o¿enie przycisku");
