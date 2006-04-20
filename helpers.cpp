@@ -27,7 +27,7 @@ namespace kLock
 		nfo.txtSize = 99;
 
 		UIActionGet(nfo);
-		if (!(prevOwner = Ctrl->ICMessage(IMI_ACTION_GETOWNER, (int)&nfo.act)))
+		if(!(prevOwner = Ctrl->ICMessage(IMI_ACTION_GETOWNER, (int)&nfo.act)))
 		{
 			prevOwner = Ctrl->ICMessage(IMC_PLUG_ID, 0);
 		}

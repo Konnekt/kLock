@@ -6,6 +6,7 @@ namespace kLock
 {
 	int IStart()
 	{
+		IMLOG("[IStart]");
 		//subclassujemy akcjê historii
 		kLock::history_owner = SubclassAction(IMIG_MAIN_CNT, IMIA_MAIN_HISTORY);
 
@@ -15,12 +16,22 @@ namespace kLock
 		//subclassujemy akcjê historii w oknie kontaktu
 		kLock::msgwnd_history_owner = SubclassAction(IMIG_MSGTB, IMIA_MSG_HISTORY);
 
+		if(PluginExists(Tabs::net))
+		{
+			IMLOG("Nie ma TabletKi, subclassujê akcjê kIEview");
+
+			//subclassujemy akcjê kontrolki kIEview - pozwoli nam wykrywaæ otwarcie okienka rozmowy
+			kLock::kIEview_owner = SubclassAction(IMIG_MSGWND, Konnekt::UI::ACT::msg_ctrlview);
+		}
+
 		//subclassujemy g³ówne okno programu - nie pozwolimy mu siê póŸniej pokazaæ
 		old_mainwnd_proc = (WNDPROC)SetWindowLongPtr((HWND)UIGroupHandle(sUIAction(0, IMIG_MAINWND)), GWLP_WNDPROC, (LONG_PTR)MainWindowProc);
-
+		
 		//sprawdzamy, czy has³o nie jest puste
 		if(!strlen(GETSTRA(kLock::Config::Password)))
 		{
+			IMLOG("Has³o jest puste, wymuszam wype³nienie");
+
 			ICMessage(IMI_INFORM, (int)"Przed pierwszym u¿yciem ustaw has³o blokowania Konnekta!");
 			sDIALOG_access sde;
 
@@ -47,6 +58,7 @@ namespace kLock
 		//jeœli poprzednim razem by³o zablokowane blokujemy
 		if(GETINT(kLock::Config::State))
 		{
+			IMLOG("By³o zablokowane, blokujê");
 			Lock();
 		}
 
@@ -84,21 +96,25 @@ namespace kLock
 
 	int IPrepare()
 	{
+		IMLOG("[IPrepare]");
 		//przycisk na toolbarze wtyczek
 		if(GETINT(kLock::Config::ButtonOnToolbar))
 		{
+			IMLOG("Tworzê przycisk w grupie wtyczek");
 			UIActionAdd(Ctrl->IMessage(IMI_GETPLUGINSGROUP, 0, 0), kLock::Acts::Lock, ACTR_INIT, "kLock", 35);
 		}
 
 		//przycisk w tray'u
 		if(GETINT(kLock::Config::ButtonInTray))
 		{
+			IMLOG("Tworzê przycisk w menu w tray'u");
 			UIActionInsert(IMIG_TRAY, kLock::Acts::Lock, Ctrl->IMessage(IMI_GROUP_ACTIONSCOUNT, 0, 0, (int)&sUIAction(IMIG_MAINWND, IMIG_TRAY)) - 1, ACTR_INIT, "kLock", 35);
 		}
 
 		//przycisk na g³ównym toolbarze
 		if(GETINT(kLock::Config::ButtonOnMainToolbar))
 		{
+			IMLOG("Tworzê przycisk na g³ównym toolbarze");
 			UIActionAdd(IMIG_MAINTB, kLock::Acts::Lock, ACTR_INIT, "kLock", 35);
 		}
 
@@ -127,14 +143,17 @@ namespace kLock
 				UIActionCfgAdd(kLock::Config::Group, kLock::Config::LockSound, ACTT_CHECK, "Wyciszaj dŸwiêki", kLock::Config::LockSound);
 				if(PluginExists(KNotify::net))
 				{
+					IMLOG("Jest kNotify, wyœwietlam opcjê");
 					UIActionCfgAdd(kLock::Config::Group, kLock::Config::LockKNotify, ACTT_CHECK, "Blokuj powiadomienia kNotify" AP_TIPRICH "Wymaga zmodyfikowanego <b>kNotify</b>!", kLock::Config::LockKNotify);
 				}
 				if(PluginExists(kMigacz::Net))
 				{
+					IMLOG("Jest kMigacz, wyœwietlam opcjê");
 					UIActionCfgAdd(kLock::Config::Group, kLock::Config::LockkMigacz, ACTT_CHECK, "Blokuj powiadomienia kMigacza", kLock::Config::LockkMigacz);
 				}
 				if(!Ctrl->ICMessage(IMC_ISWINXP))
 				{
+					IMLOG("Win9x, wyœwietlam opcjê");
 					UIActionCfgAdd(kLock::Config::Group, kLock::Config::LockProcess, ACTT_CHECK, "Ukrywaj Konnekta na liœcie procesów" AP_TIP "U¿ywaæ na w³asn¹ odpowiedzialnoœæ!", kLock::Config::LockProcess);
 				}
 			}
@@ -147,6 +166,7 @@ namespace kLock
 				UIActionCfgAdd(kLock::Config::Group, kLock::Config::SynchronizeWithAway, ACTT_CHECK, "Synchronizuj z trybem auto-away", kLock::Config::SynchronizeWithAway);
 				if(PluginExists(kAway2::net))
 				{
+					IMLOG("Jest kAway2, wyœwietlam opcje");
 					UIActionCfgAdd(kLock::Config::Group, kLock::Config::SynchronizeWithkAway, ACTT_CHECK, "Synchronizuj z kAway2", kLock::Config::SynchronizeWithkAway);
 					UIActionCfgAdd(kLock::Config::Group, kLock::Config::TurnOffkAwayOnUnlocking, ACTT_CHECK, "Wy³¹czaj kAway2 przy odblokowywaniu", kLock::Config::TurnOffkAwayOnUnlocking);
 				}
@@ -165,13 +185,15 @@ namespace kLock
 
 	ActionProc(sUIActionNotify_base* anBase)
 	{
-		switch (anBase->act.id)
+		switch(anBase->act.id)
 		{
 			case IMIA_MAIN_HISTORY:
 			{
 				if(anBase->code == ACTN_ACTION)
 				{
-					if(GETINT(kLock::Config::State))
+					IMLOG("[ActionProc]: anBase->act.id = IMIA_MAIN_HISTORY, anBase->code = ACTN_ACTION");
+
+					if(GETINT(kLock::Config::State) && GETINT(kLock::Config::LockTalkWindows))
 					{
 						Unlock();
 						return 0;
@@ -191,7 +213,9 @@ namespace kLock
 			{
 				if(anBase->code == ACTN_ACTION)
 				{
-					if(GETINT(kLock::Config::State))
+					IMLOG("[ActionProc]: anBase->act.id = IMIA_CNT_HISTORY, anBase->code = ACTN_ACTION");
+
+					if(GETINT(kLock::Config::State) && GETINT(kLock::Config::LockTalkWindows))
 					{
 						Unlock();
 						return 0;
@@ -204,14 +228,16 @@ namespace kLock
 						}
 					}
 				}
-				return IMessageDirect(IM_UIACTION, kLock::cnt_history_owner, (int)anBase);
+				return IMessageDirect(IM_UIACTION, kLock::history_owner, (int)anBase);
 				break;
 			}
 			case IMIA_MSG_HISTORY:
 			{
 				if(anBase->code == ACTN_ACTION)
 				{
-					if(GETINT(kLock::Config::State))
+					IMLOG("[ActionProc]: anBase->act.id = IMIA_MSG_HISTORY, anBase->code = ACTN_ACTION");
+
+					if(GETINT(kLock::Config::State) && GETINT(kLock::Config::LockTalkWindows))
 					{
 						Unlock();
 						return 0;
@@ -224,13 +250,25 @@ namespace kLock
 						}
 					}
 				}
-				return IMessageDirect(IM_UIACTION, kLock::msgwnd_history_owner, (int)anBase);
+				return IMessageDirect(IM_UIACTION, kLock::history_owner, (int)anBase);
 				break;
+			}
+			case Konnekt::UI::ACT::msg_ctrlview:
+			{
+				if(anBase->code == ACTN_CREATEWINDOW)
+				{
+					IMLOG("[ActionProc]: anBase->act.id = Konnekt::UI::ACT::msg_ctrlview, anBase->code = ACTN_CREATEWINDOW");
+					sUIActionNotify_createWindow* an = static_cast<sUIActionNotify_createWindow*>(anBase);
+					WndProcs[an->hwndParent] = (WNDPROC)SetWindowLongPtr(an->hwndParent, GWLP_WNDPROC, (LONG_PTR)TalkWindowProc);
+				}
+				return IMessageDirect(IM_UIACTION, kLock::kIEview_owner, (int)anBase);
 			}
 			case kLock::Config::EnableActs:
 			{
 				if(anBase->code == ACTN_ACTION)
 				{
+					IMLOG("[ActionProc]: anBase->act.id = kLock::Config::EnableActs, anBase->code = ACTN_ACTION");
+
 					if(!acts_enabled)
 					{
 						if(AskForPassword("kLock", "Zmiana ustawieñ jest zablokowana.\r\nPodaj has³o dostêpu:", (HWND)UIGroupHandle(sUIAction(0, IMIG_CFGWND))))
@@ -245,6 +283,8 @@ namespace kLock
 				}
 				else if(anBase->code == ACTN_HIDE || anBase->code == ACTN_DESTROY)
 				{
+					IMLOG("[ActionProc]: anBase->act.id = kLock::Config::EnableActs, anBase->code = ACTN_HIDE|ACTN_DESTROY");
+
 					DisableActs();
 				}
 				break;
@@ -253,6 +293,8 @@ namespace kLock
 			{
 				if(anBase->code == ACTN_ACTION)
 				{
+					IMLOG("[ActionProc]: anBase->act.id = kLock::Config::Lock, anBase->code = ACTN_ACTION");
+
 					if(GETINT(kLock::Config::State))
 					{
 						//odblokowujemy Konnekta
@@ -266,16 +308,22 @@ namespace kLock
 				}
 				else if(anBase->code == ACTN_CREATE)
 				{
+					IMLOG("[ActionProc]: anBase->act.id = kLock::Config::Lock, anBase->code = ACTN_CREATE");
+
 					UIActionSetText(anBase->act, GETINT(kLock::Config::State) ? "Odblokuj" : "Zablokuj");
 				}
 				break;
 			}
 			case kLock::Config::LockTray:
 			{
-				ACTIONONLY(anBase);
-				if(*UIActionCfgGetValue(anBase->act, 0, 0) != '0')
+				if(anBase->code == ACTN_ACTION)
 				{
-					ICMessage(IMI_WARNING, (int)"Przed w³¹czeniem tej opcji ustaw odblokowuj¹cy skrót k.Lawy\n - inaczej nie odblokujesz Konnekta.");
+					IMLOG("[ActionProc]: anBase->act.id = kLock::Config::LockTray, anBase->code = ACTN_ACTION");
+
+					if(*UIActionCfgGetValue(anBase->act, 0, 0) != '0')
+					{
+						ICMessage(IMI_WARNING, (int)"Przed w³¹czeniem tej opcji ustaw odblokowuj¹cy skrót k.Lawy\n - inaczej nie odblokujesz Konnekta.");
+					}
 				}
 			}
 		}
@@ -297,8 +345,18 @@ int __stdcall IMessageProc(sIMessage_base * msgBase)
 		case IM_PLUG_NETNAME: return 0;
 		case IM_PLUG_INIT: Plug_Init(msg->p1, msg->p2); return 1;
 		case IM_PLUG_DEINIT: Plug_Deinit(msg->p1, msg->p2); return 1;
+		case kLock::Api::Lock:
+		{
+			IMLOG("[kLock::Api::Lock]");
+
+			Lock();
+
+			return 0;
+		}
 		case kLock::Api::Unlock:
 		{
+			IMLOG("[kLock::Api::Unlock]");
+
 			return Unlock();
 		}
 		case kLock::Api::IsUnlockedForKNotify:
@@ -307,29 +365,18 @@ int __stdcall IMessageProc(sIMessage_base * msgBase)
 		}
 		case kLock::Api::IsUnlockedForkMigacz:
 		{
-				return !(GETINT(kLock::Config::State) == 1 && GETINT(kLock::Config::LockkMigacz));
+			return !(GETINT(kLock::Config::State) == 1 && GETINT(kLock::Config::LockkMigacz));
 		}
 		case kLock::Api::IsUnlocked:
 		{
-			return (GETINT(kLock::Config::State) == 0);
-		}
-		case kLock::Api::Lock:
-		{
-			Lock();
-			return 0;
-		}
-		case IM_ALLPLUGINSINITIALIZED:
-		{
-			if(!PluginExists(Tabs::net))
-			{
-				Ctrl->IMessage(&sIMessage_plugOut(Ctrl->ID(), "Wtyczka kLock nie bêdzie dzia³aæ bez wtyczki tabletKa!", 
-				sIMessage_plugOut::erYes, sIMessage_plugOut::euNowAndOnNextStart));
-				return -1;
-			}
-			return 0;
+			IMLOG("[kLock::Api::IsUnlocked]");
+
+			return !GETINT(kLock::Config::State);
 		}
 		case IM_AWAY:
 		{
+			IMLOG("[IMessageProc]: msgBase->id = IM_AWAY");
+
 			if(GETINT(kLock::Config::SynchronizeWithAway))
 			{
 				Lock();
@@ -338,6 +385,8 @@ int __stdcall IMessageProc(sIMessage_base * msgBase)
 		}
 		case kAway2::api::isAway:
 		{
+			IMLOG("[IMessageProc]: msgBase->id = kAway2::api::isAway");
+
 			if(GETINT(kLock::Config::SynchronizeWithkAway))
 			{
 				Lock();

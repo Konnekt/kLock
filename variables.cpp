@@ -5,6 +5,7 @@ namespace kLock
 	int cnt_history_owner; //poprzedni w³aœciciel akcji histori w menu kontaktu 
 	int history_owner; //poprzedni w³aœciciel akcji histori
 	int msgwnd_history_owner; //poprzedni w³aœciciel akcji histori w oknie kontaktu
+	int kIEview_owner; //poprzedni w³aœciciel kontrolki kIEview
 	std::vector<LockedWindow> locked_windows; //okna przypiête przy zak³adaniu blokady
 	bool main_visible; //czy g³ówne okienko by³o widoczne
 	bool msg_visible; //czy okienko rozmowy by³o widoczne
@@ -14,4 +15,5 @@ namespace kLock
 	bool acts_enabled; //czy s¹ aktywne kontrolki konfiguracji 
 	bool migacz_status; //czy by³o w³¹czone miganie przy zmianie statusu
 	bool migacz_msg; //czy by³o w³¹czone miganie przy wiadomoœci
+	std::map<HWND, WNDPROC> WndProcs; //lista proców okienek rozmowy, indeksowana ich uchwytami
 }

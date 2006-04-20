@@ -2,6 +2,7 @@
 
 namespace kLock
 {
+	//funkcja obs³uguj¹ca g³ówne okno, blokuj¹c je
 	LRESULT CALLBACK MainWindowProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 	{
 		if(GETINT(kLock::Config::State) && GETINT(kLock::Config::LockMainWindow))
@@ -33,8 +34,30 @@ namespace kLock
 		return CallWindowProc(old_mainwnd_proc, hwnd, iMsg, wParam, lParam);
 	}
 
+	//funkcja obs³uguj¹ca okienko rozmowy, blokuj¹c je
+	LRESULT CALLBACK TalkWindowProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
+	{
+		if(GETINT(kLock::Config::State) && GETINT(kLock::Config::LockTalkWindows))
+		{
+			switch(iMsg)
+			{
+				case WM_WINDOWPOSCHANGING:
+				case WM_WINDOWPOSCHANGED:
+				case WM_SHOWWINDOW:
+				{
+					ShowWindow(hwnd, 0);
+					return 0;
+				}
+			}
+		}
+		return CallWindowProc(WndProcs[hwnd], hwnd, iMsg, wParam, lParam);
+	}
+
+	//funkcja wyœwietlaj¹ca monit o has³o, jeœli siê zgadza zwraca 1, jeœli nie 0
 	int AskForPassword(std::string title, std::string text, HWND parent)
 	{
+		IMLOG("[AskForPassword]");
+
 		if(!unlocking)
 		{
 			unlocking = 1;
@@ -64,51 +87,77 @@ namespace kLock
 			if((std::string)sde.pass == (std::string)GETSTRA(kLock::Config::Password))
 			{
 				unlocking = 0;
+				IMLOG("Poprawne has³o");
 				return 1;
 			}
 			else
 			{
 				ICMessage(IMI_ERROR, (int)"Z³e has³o!");
 				unlocking = 0;
+				IMLOG("Niepoprawne has³o");
 				return 0;
 			}
 			unlocking = 0;
 		}
 		else
 		{
+			IMLOG("Ju¿ uruchomione okienko dialogowe");
 			return 0;
 		}
 	}
 
+	//funkcja blokuj¹ca Konnekta
 	void Lock()
 	{
+		IMLOG("[Lock]");
+
 		//ustawiamy w configu, ¿e jest blokowane
 		SETINT(kLock::Config::State, 1);
 
 		//jeœli jest zaznaczona odpowiednia opcja blokujemy okienka rozmowy
 		if(GETINT(kLock::Config::LockTalkWindows))
 		{
-			int count = ICMessage(IMC_CNT_COUNT);
-			for(int i = 0; i < count; i++)
+			if(PluginExists(Tabs::net))
 			{
-				if(UIGroupHandle(sUIAction(0, IMIG_MSGWND, Ctrl->DTgetID(DTCNT, i))) && GetProp((HWND)UIGroupHandle(sUIAction(0, IMIG_MSGWND, Ctrl->DTgetID(DTCNT, i))), "TABBED") == 0)
+				IMLOG("Blokujê okienka rozmowy, TabletKa w³¹czona");
+
+				int count = ICMessage(IMC_CNT_COUNT);
+				for(int i = 0; i < count; i++)
 				{
-					LockedWindow w;
-					w.cnt = Ctrl->DTgetID(DTCNT, i);
-					w.placement.length = sizeof(WINDOWPLACEMENT);
-					GetWindowPlacement((HWND)UIGroupHandle(sUIAction(0, IMIG_MSGWND, w.cnt)), &w.placement);
-					GetWindowRect((HWND)UIGroupHandle(sUIAction(0, IMIG_MSGWND, w.cnt)), &w.r);
-					CallAction(IMIG_CNT, Tabs::Acts::Detach, w.cnt);
-					locked_windows.push_back(w);
+					if(UIGroupHandle(sUIAction(0, IMIG_MSGWND, Ctrl->DTgetID(DTCNT, i))) && GetProp((HWND)UIGroupHandle(sUIAction(0, IMIG_MSGWND, Ctrl->DTgetID(DTCNT, i))), "TABBED") == 0)
+					{
+						LockedWindow w;
+						w.cnt = Ctrl->DTgetID(DTCNT, i);
+						w.placement.length = sizeof(WINDOWPLACEMENT);
+						GetWindowPlacement((HWND)UIGroupHandle(sUIAction(0, IMIG_MSGWND, w.cnt)), &w.placement);
+						GetWindowRect((HWND)UIGroupHandle(sUIAction(0, IMIG_MSGWND, w.cnt)), &w.r);
+						CallAction(IMIG_CNT, Tabs::Acts::Detach, w.cnt);
+						locked_windows.push_back(w);
+					}
+					msg_visible = IsWindowVisible((HWND)IMessage(Tabs::IM::GetTabWindow, Tabs::net, IMT_ALL));
 				}
-				msg_visible = IsWindowVisible((HWND)IMessage(Tabs::IM::GetTabWindow, Tabs::net, IMT_ALL));
+				ShowWindow((HWND)IMessage(Tabs::IM::GetTabWindow, Tabs::net, IMT_ALL), SW_HIDE);
 			}
-			ShowWindow((HWND)IMessage(Tabs::IM::GetTabWindow, Tabs::net, IMT_ALL), SW_HIDE);
+			else
+			{
+				IMLOG("Blokujê okienka rozmowy, TabletKa wy³¹czona");
+
+				int count = ICMessage(IMC_CNT_COUNT);
+				for(int i = 0; i < count; i++)
+				{
+					if(UIGroupHandle(sUIAction(0, IMIG_MSGWND, Ctrl->DTgetID(DTCNT, i))))
+					{
+						ShowWindow((HWND)UIGroupHandle(sUIAction(0, IMIG_MSGWND, Ctrl->DTgetID(DTCNT, i))), SW_HIDE);
+					}
+				}
+			}
 		}
 
 		//jeœli jest zaznaczona opcja ukrywamy g³ówne okno - jego nowy proc nie pozwoli mu siê pokazaæ
 		if(GETINT(kLock::Config::LockMainWindow) && IsWindowVisible((HWND)UIGroupHandle(sUIAction(0, IMIG_MAINWND))))
 		{
+			IMLOG("Ukrywam g³ówne okno");
+
 			main_visible = 1;
 			ShowWindow((HWND)UIGroupHandle(sUIAction(0, IMIG_MAINWND)), SW_HIDE);
 		}
@@ -120,6 +169,8 @@ namespace kLock
 		//jeœli jest zaznaczona opcja i dŸwiêki nie s¹ ju¿ wyciszone, wyciszamy je
 		if(GETINT(kLock::Config::LockSound) && !GETINT(kSound::Cfg::mute))
 		{
+			IMLOG("Wyciszam dŸwiêki");
+
 			CallAction(Ctrl->IMessage(IMI_GETPLUGINSGROUP, 0, 0), kSound::action::mute);
 			muted = 0;
 		}
@@ -131,6 +182,8 @@ namespace kLock
 		//jeœli jest zaznaczona opcja usuwamy ikonkê z tray'a
 		if(GETINT(kLock::Config::LockTray))
 		{
+			IMLOG("Usuwam ikonkê z tray'a");
+
 			NOTIFYICONDATA tray;
 			ZeroMemory(&tray, sizeof(NOTIFYICONDATA));
 			tray.cbSize = sizeof(NOTIFYICONDATA);
@@ -144,6 +197,7 @@ namespace kLock
 		//jeœli jest zaznaczona opcja usuwamy z listy procesów
 		if(GETINT(kLock::Config::LockProcess))
 		{
+			IMLOG("Usuwam Konnekta z listy procesów");
 			HMODULE kernel;
 			MYPROC RegisterServiceProcess;
 			kernel = LoadLibrary("KERNEL32.DLL");
@@ -173,31 +227,54 @@ namespace kLock
 		}
 	}
 
+	//funkcja odblokowuj¹ca Konnekta
 	int Unlock()
 	{
+		IMLOG("[Unlock]");
+
 		//je¿eli jest zablokowane i nie trwa ju¿ odblokowywanie
 		if(GETINT(kLock::Config::State))
 		{
 			//jeœli has³o siê zgadza odblokowujemy
 			if(AskForPassword("kLock", "Konnekt zosta³ zablokowany.\r\nPodaj has³o dostêpu:"))
 			{
+				IMLOG("Odblokowujê");
+
 				//ustawiamy w configu, ¿e jest odblokowane
 				SETINT(kLock::Config::State, 0);
 
 				//odblokowujemy okienka rozmowy
 				{
-					std::vector<kLock::LockedWindow>::iterator iter;
-					for(iter = kLock::locked_windows.begin(); iter != kLock::locked_windows.end(); iter++)
+					if(PluginExists(Tabs::net))
 					{
-						CallAction(IMIG_CNT, Tabs::Acts::Detach, iter->cnt);			
-						SetWindowPos((HWND)UIGroupHandle(sUIAction(0, IMIG_MSGWND, iter->cnt)), 0, iter->r.left, iter->r.top, iter->r.right - iter->r.left, iter->r.bottom - iter->r.top, 0);
-						SetWindowPlacement((HWND)UIGroupHandle(sUIAction(0, IMIG_MSGWND, iter->cnt)), &iter->placement);
-					}
-					kLock::locked_windows.clear();
+						IMLOG("Odblokowujê okienka rozmowy, tabletKa w³¹czona");
 
-					if(msg_visible)
+						std::vector<kLock::LockedWindow>::iterator iter;
+						for(iter = kLock::locked_windows.begin(); iter != kLock::locked_windows.end(); iter++)
+						{
+							CallAction(IMIG_CNT, Tabs::Acts::Detach, iter->cnt);			
+							SetWindowPos((HWND)UIGroupHandle(sUIAction(0, IMIG_MSGWND, iter->cnt)), 0, iter->r.left, iter->r.top, iter->r.right - iter->r.left, iter->r.bottom - iter->r.top, 0);
+							SetWindowPlacement((HWND)UIGroupHandle(sUIAction(0, IMIG_MSGWND, iter->cnt)), &iter->placement);
+						}
+						kLock::locked_windows.clear();
+
+						if(msg_visible)
+						{
+							ShowWindow((HWND)IMessage(Tabs::IM::GetTabWindow,Tabs::net,IMT_ALL), SW_SHOW);
+						}
+					}
+					else
 					{
-						ShowWindow((HWND)IMessage(Tabs::IM::GetTabWindow,Tabs::net,IMT_ALL), SW_SHOW);
+						IMLOG("Odblokowujê okienka rozmowy, tabletKa wy³¹czona");
+
+						int count = ICMessage(IMC_CNT_COUNT);
+						for(int i = 0; i < count; i++)
+						{
+							if(UIGroupHandle(sUIAction(0, IMIG_MSGWND, Ctrl->DTgetID(DTCNT, i))))
+							{
+								ShowWindow((HWND)UIGroupHandle(sUIAction(0, IMIG_MSGWND, Ctrl->DTgetID(DTCNT, i))), SW_SHOW);
+							}
+						}
 					}
 				}
 
@@ -266,17 +343,22 @@ namespace kLock
 			}
 			else
 			{
+				IMLOG("Nie odblokowujê");
 				return 0;
 			}
 		}
 		else
 		{
+			IMLOG("Ju¿ odblokowane");
 			return 1;
 		}
 	}
 
+	//funkcja aktywuj¹ca kontrolki w konfiguracji
 	void EnableActs()
 	{
+		IMLOG("[EnableActs]");
+
 		UIActionSetStatus(sUIAction(kLock::Config::Group, kLock::Config::Password), 0, ACTS_DISABLED);
 		UIActionSetStatus(sUIAction(kLock::Config::Group, kLock::Config::AskForPasswordOnHistory), 0, ACTS_DISABLED);
 		UIActionSetStatus(sUIAction(kLock::Config::Group, kLock::Config::LockMainWindow), 0, ACTS_DISABLED);
@@ -296,8 +378,11 @@ namespace kLock
 		acts_enabled = 1;
 	}
 
+	//funkcja deaktywuj¹ca kontrolki w konfiguracji
 	void DisableActs()
 	{
+		IMLOG("[DisableActs]");
+
 		UIActionSetStatus(sUIAction(kLock::Config::Group, kLock::Config::Password), -1, ACTS_DISABLED);
 		UIActionSetStatus(sUIAction(kLock::Config::Group, kLock::Config::AskForPasswordOnHistory), -1, ACTS_DISABLED);
 		UIActionSetStatus(sUIAction(kLock::Config::Group, kLock::Config::LockMainWindow), -1, ACTS_DISABLED);

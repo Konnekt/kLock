@@ -5,6 +5,7 @@
 //standardowe
 #include <string>
 #include <vector>
+#include <map>
 
 //windowsowe
 #include <windows.h>
