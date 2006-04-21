@@ -7,6 +7,7 @@ namespace kLock
 	int IStart()
 	{
 		IMLOG("[IStart]");
+
 		//subclassujemy akcjê historii
 		kLock::history_owner = SubclassAction(IMIG_MAIN_CNT, IMIA_MAIN_HISTORY);
 
@@ -27,11 +28,12 @@ namespace kLock
 		//subclassujemy g³ówne okno programu - nie pozwolimy mu siê póŸniej pokazaæ
 		old_mainwnd_proc = (WNDPROC)SetWindowLongPtr((HWND)UIGroupHandle(sUIAction(0, IMIG_MAINWND)), GWLP_WNDPROC, (LONG_PTR)MainWindowProc);
 		
-		//sprawdzamy, czy has³o nie jest puste
+		//sprawdzamy, czy has³o nie jest puste…
 		if(!strlen(GETSTRA(kLock::Config::Password)))
 		{
 			IMLOG("Has³o jest puste, wymuszam wype³nienie");
 
+			//i jeœli tak wymuszamy jego zmianê
 			ICMessage(IMI_INFORM, (int)"Przed pierwszym u¿yciem ustaw has³o blokowania Konnekta!");
 			sDIALOG_access sde;
 
@@ -97,6 +99,7 @@ namespace kLock
 	int IPrepare()
 	{
 		IMLOG("[IPrepare]");
+
 		//przycisk na toolbarze wtyczek
 		if(GETINT(kLock::Config::ButtonOnToolbar))
 		{
@@ -114,8 +117,11 @@ namespace kLock
 		//przycisk na g³ównym toolbarze
 		if(GETINT(kLock::Config::ButtonOnMainToolbar))
 		{
-			IMLOG("Tworzê przycisk na g³ównym toolbarze");
-			UIActionAdd(IMIG_MAINTB, kLock::Acts::Lock, ACTR_INIT, "kLock", 35);
+			if(Ctrl->IMessage(IMI_GETPLUGINSGROUP, 0, 0) != IMIG_MAINTB)
+			{
+				IMLOG("Tworzê przycisk na g³ównym toolbarze");
+				UIActionAdd(IMIG_MAINTB, kLock::Acts::Lock, ACTR_INIT, "kLock", 35);
+			}
 		}
 
 		//konfiguracja
@@ -297,12 +303,10 @@ namespace kLock
 
 					if(GETINT(kLock::Config::State))
 					{
-						//odblokowujemy Konnekta
 						Unlock();
 					}
 					else
 					{
-						//blokujemy Konnekta
 						Lock();
 					}						
 				}

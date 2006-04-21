@@ -38,7 +38,6 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalOptions="/FORCE"
-				AdditionalDependencies=""
 				OutputFile="$(OutDir)/kLock_d.dll"
 				LinkIncremental="1"
 				IgnoreAllDefaultLibraries="FALSE"
@@ -96,7 +95,6 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalOptions="/FORCE"
-				AdditionalDependencies=""
 				OutputFile="$(OutDir)/kLock.dll"
 				LinkIncremental="1"
 				GenerateDebugInformation="FALSE"
@@ -156,12 +154,6 @@ rmdir /S /Q plugins
 			</File>
 			<File
 				RelativePath="..\konnekt_defs.cpp">
-				<FileConfiguration
-					Name="Release|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="2"/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\variables.cpp">
