@@ -79,6 +79,7 @@ namespace kLock
 				if(!ICMessage(IMI_DLGPASS, (int)&sde))
 				{
 					unlocking = 0;
+					IMLOG("Okienko zamkniêto");
 					return 0;
 				}
 			}
@@ -247,8 +248,6 @@ namespace kLock
 				{
 					if(PluginExists(Tabs::net))
 					{
-						IMLOG("Odblokowujê okienka rozmowy, tabletKa w³¹czona");
-
 						std::vector<kLock::LockedWindow>::iterator iter;
 						for(iter = kLock::locked_windows.begin(); iter != kLock::locked_windows.end(); iter++)
 						{
@@ -265,8 +264,6 @@ namespace kLock
 					}
 					else
 					{
-						IMLOG("Odblokowujê okienka rozmowy, tabletKa wy³¹czona");
-
 						int count = ICMessage(IMC_CNT_COUNT);
 						for(int i = 0; i < count; i++)
 						{

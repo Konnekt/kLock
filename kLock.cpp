@@ -17,7 +17,7 @@ namespace kLock
 		//subclassujemy akcjê historii w oknie kontaktu
 		kLock::msgwnd_history_owner = SubclassAction(IMIG_MSGTB, IMIA_MSG_HISTORY);
 
-		if(PluginExists(Tabs::net))
+		if(!PluginExists(Tabs::net))
 		{
 			IMLOG("Nie ma TabletKi, subclassujê akcjê kIEview");
 
