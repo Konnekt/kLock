@@ -31,8 +31,6 @@ namespace kLock
 		//sprawdzamy, czy has³o nie jest puste…
 		if(!strlen(GETSTRA(kLock::Config::Password)))
 		{
-			IMLOG("Has³o jest puste, wymuszam wype³nienie");
-
 			//i jeœli tak wymuszamy jego zmianê
 			ICMessage(IMI_INFORM, (int)"Przed pierwszym u¿yciem ustaw has³o blokowania Konnekta!");
 			sDIALOG_access sde;
@@ -60,7 +58,6 @@ namespace kLock
 		//jeœli poprzednim razem by³o zablokowane blokujemy
 		if(GETINT(kLock::Config::State))
 		{
-			IMLOG("By³o zablokowane, blokujê");
 			Lock();
 		}
 
@@ -264,8 +261,13 @@ namespace kLock
 				if(anBase->code == ACTN_CREATEWINDOW)
 				{
 					IMLOG("[ActionProc]: anBase->act.id = Konnekt::UI::ACT::msg_ctrlview, anBase->code = ACTN_CREATEWINDOW");
-					sUIActionNotify_createWindow* an = static_cast<sUIActionNotify_createWindow*>(anBase);
-					WndProcs[an->hwndParent] = (WNDPROC)SetWindowLongPtr(an->hwndParent, GWLP_WNDPROC, (LONG_PTR)TalkWindowProc);
+
+					if(GETINT(kLock::Config::State) && GETINT(kLock::Config::LockTalkWindows))
+					{
+						sUIActionNotify_createWindow* an = static_cast<sUIActionNotify_createWindow*>(anBase);
+						DestroyWindow(an->hwndParent);
+						return 0;
+					}
 				}
 				return IMessageDirect(IM_UIACTION, kLock::kIEview_owner, (int)anBase);
 			}

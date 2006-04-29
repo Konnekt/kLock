@@ -34,25 +34,6 @@ namespace kLock
 		return CallWindowProc(old_mainwnd_proc, hwnd, iMsg, wParam, lParam);
 	}
 
-	//funkcja obs³uguj¹ca okienko rozmowy, blokuj¹c je
-	LRESULT CALLBACK TalkWindowProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
-	{
-		if(GETINT(kLock::Config::State) && GETINT(kLock::Config::LockTalkWindows))
-		{
-			switch(iMsg)
-			{
-				case WM_WINDOWPOSCHANGING:
-				case WM_WINDOWPOSCHANGED:
-				case WM_SHOWWINDOW:
-				{
-					ShowWindow(hwnd, 0);
-					return 0;
-				}
-			}
-		}
-		return CallWindowProc(WndProcs[hwnd], hwnd, iMsg, wParam, lParam);
-	}
-
 	//funkcja wyœwietlaj¹ca monit o has³o, jeœli siê zgadza zwraca 1, jeœli nie 0
 	int AskForPassword(std::string title, std::string text, HWND parent)
 	{
@@ -148,7 +129,13 @@ namespace kLock
 				{
 					if(UIGroupHandle(sUIAction(0, IMIG_MSGWND, Ctrl->DTgetID(DTCNT, i))))
 					{
-						ShowWindow((HWND)UIGroupHandle(sUIAction(0, IMIG_MSGWND, Ctrl->DTgetID(DTCNT, i))), SW_HIDE);
+						LockedWindow w;
+						w.cnt = Ctrl->DTgetID(DTCNT, i);
+						w.placement.length = sizeof(WINDOWPLACEMENT);
+						GetWindowPlacement((HWND)UIGroupHandle(sUIAction(0, IMIG_MSGWND, w.cnt)), &w.placement);
+						GetWindowRect((HWND)UIGroupHandle(sUIAction(0, IMIG_MSGWND, w.cnt)), &w.r);
+						DestroyWindow((HWND)UIGroupHandle(sUIAction(0, IMIG_MSGWND, Ctrl->DTgetID(DTCNT, i))));
+						locked_windows.push_back(w);
 					}
 				}
 			}
@@ -248,12 +235,11 @@ namespace kLock
 				{
 					if(PluginExists(Tabs::net))
 					{
-						std::vector<kLock::LockedWindow>::iterator iter;
-						for(iter = kLock::locked_windows.begin(); iter != kLock::locked_windows.end(); iter++)
+						for(std::list<kLock::LockedWindow>::iterator i = kLock::locked_windows.begin(); i != kLock::locked_windows.end(); i++)
 						{
-							CallAction(IMIG_CNT, Tabs::Acts::Detach, iter->cnt);			
-							SetWindowPos((HWND)UIGroupHandle(sUIAction(0, IMIG_MSGWND, iter->cnt)), 0, iter->r.left, iter->r.top, iter->r.right - iter->r.left, iter->r.bottom - iter->r.top, 0);
-							SetWindowPlacement((HWND)UIGroupHandle(sUIAction(0, IMIG_MSGWND, iter->cnt)), &iter->placement);
+							CallAction(IMIG_CNT, Tabs::Acts::Detach, i->cnt);			
+							SetWindowPos((HWND)UIGroupHandle(sUIAction(0, IMIG_MSGWND, i->cnt)), 0, i->r.left, i->r.top, i->r.right - i->r.left, i->r.bottom - i->r.top, 0);
+							SetWindowPlacement((HWND)UIGroupHandle(sUIAction(0, IMIG_MSGWND, i->cnt)), &i->placement);
 						}
 						kLock::locked_windows.clear();
 
@@ -264,25 +250,24 @@ namespace kLock
 					}
 					else
 					{
-						int count = ICMessage(IMC_CNT_COUNT);
-						for(int i = 0; i < count; i++)
+						for(std::list<kLock::LockedWindow>::iterator i = kLock::locked_windows.begin(); i != kLock::locked_windows.end(); i++)
 						{
-							if(UIGroupHandle(sUIAction(0, IMIG_MSGWND, Ctrl->DTgetID(DTCNT, i))))
-							{
-								ShowWindow((HWND)UIGroupHandle(sUIAction(0, IMIG_MSGWND, Ctrl->DTgetID(DTCNT, i))), SW_SHOW);
-							}
+							CallAction(IMIG_CNT, IMIA_CNT_MSGOPEN, i->cnt);
+							SetWindowPos((HWND)UIGroupHandle(sUIAction(0, IMIG_MSGWND, i->cnt)), 0, i->r.left, i->r.top, i->r.right - i->r.left, i->r.bottom - i->r.top, 0);
+							SetWindowPlacement((HWND)UIGroupHandle(sUIAction(0, IMIG_MSGWND, i->cnt)), &i->placement);
 						}
+						kLock::locked_windows.clear();
 					}
 				}
 
-				//pokazujemy g³ówne okno - nowy proc powinien na to pozwoliæ
+				//pokazujemy g³ówne okno - nowy proc powinien ju¿ na to pozwoliæ
 				if(main_visible)
 				{
 					ShowWindow((HWND)UIGroupHandle(sUIAction(0, IMIG_MAINWND)), SW_SHOW);
 				}
 
 				//wy³aczamy wyciszenie dŸwiêków
-				if(GETINT(kLock::Config::LockSound) && !muted)
+				if(!muted && GETINT(kSound::Cfg::mute))
 				{
 					CallAction(Ctrl->IMessage(IMI_GETPLUGINSGROUP, 0, 0), kSound::action::mute);
 				}

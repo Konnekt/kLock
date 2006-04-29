@@ -4,8 +4,7 @@
 
 //standardowe
 #include <string>
-#include <vector>
-#include <map>
+#include <list>
 
 //windowsowe
 #include <windows.h>
