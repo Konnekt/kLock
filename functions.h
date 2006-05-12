@@ -7,7 +7,7 @@ namespace kLock
 	int AskForPassword(std::string title, std::string text, HWND parent = 0);
 
 	//funkcja blokuj¹ca Konnekta
-	void Lock();
+	void Lock(bool force = 0);
 
 	//funkcja pytaj¹ca o has³o i odblokowuj¹ca Konnekta
 	int Unlock();

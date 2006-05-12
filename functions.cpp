@@ -89,129 +89,132 @@ namespace kLock
 	}
 
 	//funkcja blokuj¹ca Konnekta
-	void Lock()
+	void Lock(bool force)
 	{
 		IMLOG("[Lock]");
 
-		//ustawiamy w configu, ¿e jest blokowane
-		SETINT(kLock::Config::State, 1);
-
-		//jeœli jest zaznaczona odpowiednia opcja blokujemy okienka rozmowy
-		if(GETINT(kLock::Config::LockTalkWindows))
+		if(!GETINT(kLock::Config::State) || force)
 		{
-			if(PluginExists(Tabs::net))
-			{
-				IMLOG("Blokujê okienka rozmowy, TabletKa w³¹czona");
+			//ustawiamy w configu, ¿e jest blokowane
+			SETINT(kLock::Config::State, 1);
 
-				int count = ICMessage(IMC_CNT_COUNT);
-				for(int i = 0; i < count; i++)
+			//jeœli jest zaznaczona odpowiednia opcja blokujemy okienka rozmowy
+			if(GETINT(kLock::Config::LockTalkWindows))
+			{
+				if(PluginExists(Tabs::net))
 				{
-					if(UIGroupHandle(sUIAction(0, IMIG_MSGWND, Ctrl->DTgetID(DTCNT, i))) && GetProp((HWND)UIGroupHandle(sUIAction(0, IMIG_MSGWND, Ctrl->DTgetID(DTCNT, i))), "TABBED") == 0)
+					IMLOG("Blokujê okienka rozmowy, TabletKa w³¹czona");
+
+					int count = ICMessage(IMC_CNT_COUNT);
+					for(int i = 0; i < count; i++)
 					{
-						LockedWindow w;
-						w.cnt = Ctrl->DTgetID(DTCNT, i);
-						w.placement.length = sizeof(WINDOWPLACEMENT);
-						GetWindowPlacement((HWND)UIGroupHandle(sUIAction(0, IMIG_MSGWND, w.cnt)), &w.placement);
-						GetWindowRect((HWND)UIGroupHandle(sUIAction(0, IMIG_MSGWND, w.cnt)), &w.r);
-						CallAction(IMIG_CNT, Tabs::Acts::Detach, w.cnt);
-						locked_windows.push_back(w);
+						if(UIGroupHandle(sUIAction(0, IMIG_MSGWND, Ctrl->DTgetID(DTCNT, i))) && GetProp((HWND)UIGroupHandle(sUIAction(0, IMIG_MSGWND, Ctrl->DTgetID(DTCNT, i))), "TABBED") == 0)
+						{
+							LockedWindow w;
+							w.cnt = Ctrl->DTgetID(DTCNT, i);
+							w.placement.length = sizeof(WINDOWPLACEMENT);
+							GetWindowPlacement((HWND)UIGroupHandle(sUIAction(0, IMIG_MSGWND, w.cnt)), &w.placement);
+							GetWindowRect((HWND)UIGroupHandle(sUIAction(0, IMIG_MSGWND, w.cnt)), &w.r);
+							CallAction(IMIG_CNT, Tabs::Acts::Detach, w.cnt);
+							locked_windows.push_back(w);
+						}
+						msg_visible = IsWindowVisible((HWND)IMessage(Tabs::IM::GetTabWindow, Tabs::net, IMT_ALL));
 					}
-					msg_visible = IsWindowVisible((HWND)IMessage(Tabs::IM::GetTabWindow, Tabs::net, IMT_ALL));
+					ShowWindow((HWND)IMessage(Tabs::IM::GetTabWindow, Tabs::net, IMT_ALL), SW_HIDE);
 				}
-				ShowWindow((HWND)IMessage(Tabs::IM::GetTabWindow, Tabs::net, IMT_ALL), SW_HIDE);
+				else
+				{
+					IMLOG("Blokujê okienka rozmowy, TabletKa wy³¹czona");
+
+					int count = ICMessage(IMC_CNT_COUNT);
+					for(int i = 0; i < count; i++)
+					{
+						if(UIGroupHandle(sUIAction(0, IMIG_MSGWND, Ctrl->DTgetID(DTCNT, i))))
+						{
+							LockedWindow w;
+							w.cnt = Ctrl->DTgetID(DTCNT, i);
+							w.placement.length = sizeof(WINDOWPLACEMENT);
+							GetWindowPlacement((HWND)UIGroupHandle(sUIAction(0, IMIG_MSGWND, w.cnt)), &w.placement);
+							GetWindowRect((HWND)UIGroupHandle(sUIAction(0, IMIG_MSGWND, w.cnt)), &w.r);
+							DestroyWindow((HWND)UIGroupHandle(sUIAction(0, IMIG_MSGWND, Ctrl->DTgetID(DTCNT, i))));
+							locked_windows.push_back(w);
+						}
+					}
+				}
+			}
+
+			//jeœli jest zaznaczona opcja ukrywamy g³ówne okno - jego nowy proc nie pozwoli mu siê pokazaæ
+			if(GETINT(kLock::Config::LockMainWindow) && IsWindowVisible((HWND)UIGroupHandle(sUIAction(0, IMIG_MAINWND))))
+			{
+				IMLOG("Ukrywam g³ówne okno");
+
+				main_visible = 1;
+				ShowWindow((HWND)UIGroupHandle(sUIAction(0, IMIG_MAINWND)), SW_HIDE);
 			}
 			else
 			{
-				IMLOG("Blokujê okienka rozmowy, TabletKa wy³¹czona");
-
-				int count = ICMessage(IMC_CNT_COUNT);
-				for(int i = 0; i < count; i++)
-				{
-					if(UIGroupHandle(sUIAction(0, IMIG_MSGWND, Ctrl->DTgetID(DTCNT, i))))
-					{
-						LockedWindow w;
-						w.cnt = Ctrl->DTgetID(DTCNT, i);
-						w.placement.length = sizeof(WINDOWPLACEMENT);
-						GetWindowPlacement((HWND)UIGroupHandle(sUIAction(0, IMIG_MSGWND, w.cnt)), &w.placement);
-						GetWindowRect((HWND)UIGroupHandle(sUIAction(0, IMIG_MSGWND, w.cnt)), &w.r);
-						DestroyWindow((HWND)UIGroupHandle(sUIAction(0, IMIG_MSGWND, Ctrl->DTgetID(DTCNT, i))));
-						locked_windows.push_back(w);
-					}
-				}
+				main_visible = 0;
 			}
-		}
 
-		//jeœli jest zaznaczona opcja ukrywamy g³ówne okno - jego nowy proc nie pozwoli mu siê pokazaæ
-		if(GETINT(kLock::Config::LockMainWindow) && IsWindowVisible((HWND)UIGroupHandle(sUIAction(0, IMIG_MAINWND))))
-		{
-			IMLOG("Ukrywam g³ówne okno");
-
-			main_visible = 1;
-			ShowWindow((HWND)UIGroupHandle(sUIAction(0, IMIG_MAINWND)), SW_HIDE);
-		}
-		else
-		{
-			main_visible = 0;
-		}
-
-		//jeœli jest zaznaczona opcja i dŸwiêki nie s¹ ju¿ wyciszone, wyciszamy je
-		if(GETINT(kLock::Config::LockSound) && !GETINT(kSound::Cfg::mute))
-		{
-			IMLOG("Wyciszam dŸwiêki");
-
-			CallAction(Ctrl->IMessage(IMI_GETPLUGINSGROUP, 0, 0), kSound::action::mute);
-			muted = 0;
-		}
-		else
-		{
-			muted = 1;
-		}
-
-		//jeœli jest zaznaczona opcja usuwamy ikonkê z tray'a
-		if(GETINT(kLock::Config::LockTray))
-		{
-			IMLOG("Usuwam ikonkê z tray'a");
-
-			NOTIFYICONDATA tray;
-			ZeroMemory(&tray, sizeof(NOTIFYICONDATA));
-			tray.cbSize = sizeof(NOTIFYICONDATA);
-			tray.uID = 1000;
-			tray.uFlags = 0;
-			tray.hWnd = (HWND)UIGroupHandle(sUIAction(0, IMIG_MAINWND));
-			tray.uCallbackMessage = WM_USER+1086;
-			Shell_NotifyIcon(NIM_DELETE, &tray);
-		}
-
-		//jeœli jest zaznaczona opcja usuwamy z listy procesów
-		if(GETINT(kLock::Config::LockProcess))
-		{
-			IMLOG("Usuwam Konnekta z listy procesów");
-			HMODULE kernel;
-			MYPROC RegisterServiceProcess;
-			kernel = LoadLibrary("KERNEL32.DLL");
-			if(kernel)
+			//jeœli jest zaznaczona opcja i dŸwiêki nie s¹ ju¿ wyciszone, wyciszamy je
+			if(GETINT(kLock::Config::LockSound) && !GETINT(kSound::Cfg::mute))
 			{
-				RegisterServiceProcess = (MYPROC)GetProcAddress(kernel, "RegisterServiceProcess");
-				if(RegisterServiceProcess)
-				{
-					RegisterServiceProcess(GetCurrentProcessId(), 1);
-				}
-				FreeLibrary(kernel);
-			}
-		}
+				IMLOG("Wyciszam dŸwiêki");
 
-		//zmieniamy napis na przycisku
-		if(GETINT(kLock::Config::ButtonOnToolbar))
-		{
-			UIActionSetText(Ctrl->IMessage(IMI_GETPLUGINSGROUP, 0, 0), kLock::Acts::Lock, "Odblokuj");
-		}
-		if(GETINT(kLock::Config::ButtonInTray))
-		{
-			UIActionSetText(IMIG_TRAY, kLock::Acts::Lock, "Odblokuj");
-		}
-		if(GETINT(kLock::Config::ButtonOnMainToolbar))
-		{
-			UIActionSetText(IMIG_MAINTB, kLock::Acts::Lock, "Odblokuj");
+				CallAction(Ctrl->IMessage(IMI_GETPLUGINSGROUP, 0, 0), kSound::action::mute);
+				muted = 0;
+			}
+			else
+			{
+				muted = 1;
+			}
+
+			//jeœli jest zaznaczona opcja usuwamy ikonkê z tray'a
+			if(GETINT(kLock::Config::LockTray))
+			{
+				IMLOG("Usuwam ikonkê z tray'a");
+
+				NOTIFYICONDATA tray;
+				ZeroMemory(&tray, sizeof(NOTIFYICONDATA));
+				tray.cbSize = sizeof(NOTIFYICONDATA);
+				tray.uID = 1000;
+				tray.uFlags = 0;
+				tray.hWnd = (HWND)UIGroupHandle(sUIAction(0, IMIG_MAINWND));
+				tray.uCallbackMessage = WM_USER+1086;
+				Shell_NotifyIcon(NIM_DELETE, &tray);
+			}
+
+			//jeœli jest zaznaczona opcja usuwamy z listy procesów
+			if(GETINT(kLock::Config::LockProcess))
+			{
+				IMLOG("Usuwam Konnekta z listy procesów");
+				HMODULE kernel;
+				MYPROC RegisterServiceProcess;
+				kernel = LoadLibrary("KERNEL32.DLL");
+				if(kernel)
+				{
+					RegisterServiceProcess = (MYPROC)GetProcAddress(kernel, "RegisterServiceProcess");
+					if(RegisterServiceProcess)
+					{
+						RegisterServiceProcess(GetCurrentProcessId(), 1);
+					}
+					FreeLibrary(kernel);
+				}
+			}
+
+			//zmieniamy napis na przycisku
+			if(GETINT(kLock::Config::ButtonOnToolbar))
+			{
+				UIActionSetText(Ctrl->IMessage(IMI_GETPLUGINSGROUP, 0, 0), kLock::Acts::Lock, "Odblokuj");
+			}
+			if(GETINT(kLock::Config::ButtonInTray))
+			{
+				UIActionSetText(IMIG_TRAY, kLock::Acts::Lock, "Odblokuj");
+			}
+			if(GETINT(kLock::Config::ButtonOnMainToolbar))
+			{
+				UIActionSetText(IMIG_MAINTB, kLock::Acts::Lock, "Odblokuj");
+			}
 		}
 	}
 

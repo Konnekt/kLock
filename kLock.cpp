@@ -58,7 +58,7 @@ namespace kLock
 		//jeœli poprzednim razem by³o zablokowane blokujemy
 		if(GETINT(kLock::Config::State))
 		{
-			Lock();
+			Lock(1);
 		}
 
 		return 1;
