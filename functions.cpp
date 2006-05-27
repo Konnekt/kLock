@@ -332,6 +332,7 @@ namespace kLock
 				return 0;
 			}
 		}
+		return 0;
 	}
 
 	//funkcja aktywuj¹ca kontrolki w konfiguracji
