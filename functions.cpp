@@ -129,7 +129,7 @@ namespace kLock
 					int count = ICMessage(IMC_CNT_COUNT);
 					for(int i = 0; i < count; i++)
 					{
-						if(UIGroupHandle(sUIAction(0, IMIG_MSGWND, Ctrl->DTgetID(DTCNT, i))))
+						if(UIGroupHandle(sUIAction(0, IMIG_MSGWND, Ctrl->DTgetID(DTCNT, i))) && IsWindowVisible((HWND)UIGroupHandle(sUIAction(0, IMIG_MSGWND, Ctrl->DTgetID(DTCNT, i)))))
 						{
 							LockedWindow w;
 							w.cnt = Ctrl->DTgetID(DTCNT, i);
@@ -221,11 +221,11 @@ namespace kLock
 	//funkcja odblokowuj¹ca Konnekta
 	int Unlock()
 	{
-		IMLOG("[Unlock]");
-
-		//je¿eli jest zablokowane i nie trwa ju¿ odblokowywanie
+		//je¿eli jest zablokowane
 		if(GETINT(kLock::Config::State))
 		{
+			IMLOG("[Unlock]");
+
 			//jeœli has³o siê zgadza odblokowujemy
 			if(AskForPassword("kLock", "Konnekt zosta³ zablokowany.\r\nPodaj has³o dostêpu:"))
 			{
@@ -331,11 +331,6 @@ namespace kLock
 				IMLOG("Nie odblokowujê");
 				return 0;
 			}
-		}
-		else
-		{
-			IMLOG("Ju¿ odblokowane");
-			return 1;
 		}
 	}
 

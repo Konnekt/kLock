@@ -126,7 +126,8 @@ char * __vsaprintf(const char *format, va_list ap)
             VSNPRINTF(buf, size + 1, format, ap);
             return buf;
     }
-#endif
+#endif
+
 #ifndef NO_PLUG_EXPORT
 
 using Tables::Value;

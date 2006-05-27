@@ -82,7 +82,7 @@
 				Optimization="3"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;KLOCK_EXPORTS"
 				RuntimeLibrary="2"
-				UsePrecompiledHeader="1"
+				UsePrecompiledHeader="2"
 				PrecompiledHeaderThrough="includes.h"
 				PrecompiledHeaderFile="$(IntDir)/$(TargetName).pch"
 				ObjectFile="$(IntDir)/"

@@ -353,16 +353,12 @@ int __stdcall IMessageProc(sIMessage_base * msgBase)
 		case IM_PLUG_DEINIT: Plug_Deinit(msg->p1, msg->p2); return 1;
 		case kLock::Api::Lock:
 		{
-			IMLOG("[kLock::Api::Lock]");
-
 			Lock();
 
 			return 0;
 		}
 		case kLock::Api::Unlock:
 		{
-			IMLOG("[kLock::Api::Unlock]");
-
 			return Unlock();
 		}
 		case kLock::Api::IsUnlockedForKNotify:
