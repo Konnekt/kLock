@@ -129,15 +129,18 @@ namespace kLock
 					int count = ICMessage(IMC_CNT_COUNT);
 					for(int i = 0; i < count; i++)
 					{
-						if(UIGroupHandle(sUIAction(0, IMIG_MSGWND, Ctrl->DTgetID(DTCNT, i))) && IsWindowVisible((HWND)UIGroupHandle(sUIAction(0, IMIG_MSGWND, Ctrl->DTgetID(DTCNT, i)))))
+						if(UIGroupHandle(sUIAction(0, IMIG_MSGWND, Ctrl->DTgetID(DTCNT, i))))
 						{
-							LockedWindow w;
-							w.cnt = Ctrl->DTgetID(DTCNT, i);
-							w.placement.length = sizeof(WINDOWPLACEMENT);
-							GetWindowPlacement((HWND)UIGroupHandle(sUIAction(0, IMIG_MSGWND, w.cnt)), &w.placement);
-							GetWindowRect((HWND)UIGroupHandle(sUIAction(0, IMIG_MSGWND, w.cnt)), &w.r);
+							if(IsWindowVisible((HWND)UIGroupHandle(sUIAction(0, IMIG_MSGWND, Ctrl->DTgetID(DTCNT, i)))))
+							{
+								LockedWindow w;
+								w.cnt = Ctrl->DTgetID(DTCNT, i);
+								w.placement.length = sizeof(WINDOWPLACEMENT);
+								GetWindowPlacement((HWND)UIGroupHandle(sUIAction(0, IMIG_MSGWND, w.cnt)), &w.placement);
+								GetWindowRect((HWND)UIGroupHandle(sUIAction(0, IMIG_MSGWND, w.cnt)), &w.r);
+								locked_windows.push_back(w);
+							}
 							DestroyWindow((HWND)UIGroupHandle(sUIAction(0, IMIG_MSGWND, Ctrl->DTgetID(DTCNT, i))));
-							locked_windows.push_back(w);
 						}
 					}
 				}
@@ -332,7 +335,7 @@ namespace kLock
 				return 0;
 			}
 		}
-		return 0;
+		return 1;
 	}
 
 	//funkcja aktywuj¹ca kontrolki w konfiguracji
