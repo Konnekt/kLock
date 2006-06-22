@@ -4,7 +4,7 @@ namespace kLock
 	LRESULT CALLBACK MainWindowProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam);
 
 	//funkcja wyœwietlaj¹ca monit o has³o, jeœli siê zgadza zwraca 1, jeœli nie 0
-	int AskForPassword(std::string title, std::string text, HWND parent = 0);
+	int AskForPassword(std::string title, std::string text, std::string text2, HWND parent = 0);
 
 	//funkcja blokuj¹ca Konnekta
 	void Lock(bool force = 0);

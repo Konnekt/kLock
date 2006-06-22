@@ -35,7 +35,7 @@ namespace kLock
 	}
 
 	//funkcja wyœwietlaj¹ca monit o has³o, jeœli siê zgadza zwraca 1, jeœli nie 0
-	int AskForPassword(std::string title, std::string text, HWND parent)
+	int AskForPassword(std::string title, std::string text, std::string text2, HWND parent)
 	{
 		IMLOG("[AskForPassword]");
 
@@ -43,43 +43,63 @@ namespace kLock
 		{
 			unlocking = 1;
 
-			sDIALOG_access sde;
-
-			//wyœwietlamy pytanie o has³o
+			if(strlen(GETSTRA(kLock::Config::Password)))
 			{
-				sde.info = text.c_str();
-				sde.title = title.c_str();
-				if(!parent)
+				IMLOG("Jest has³o");
+				sDIALOG_access sde;
+
+				//wyœwietlamy pytanie o has³o
 				{
-					sde.handle = (HWND)UIGroupHandle(sUIAction(0, IMIG_MAINWND));
+					sde.info = text.c_str();
+					sde.title = title.c_str();
+					if(!parent)
+					{
+						sde.handle = (HWND)UIGroupHandle(sUIAction(0, IMIG_MAINWND));
+					}
+					else
+					{
+						sde.handle = parent;
+					}
+					if(!ICMessage(IMI_DLGPASS, (int)&sde))
+					{
+						unlocking = 0;
+						IMLOG("Okienko zamkniêto");
+						return 0;
+					}
+				}
+
+				//jeœli has³o siê zgadza zwracamy 1, jeœli nie 0
+				if((std::string)sde.pass == (std::string)GETSTRA(kLock::Config::Password))
+				{
+					unlocking = 0;
+					IMLOG("Poprawne has³o");
+					return 1;
 				}
 				else
 				{
-					sde.handle = parent;
-				}
-				if(!ICMessage(IMI_DLGPASS, (int)&sde))
-				{
+					ICMessage(IMI_ERROR, (int)"Z³e has³o!");
 					unlocking = 0;
-					IMLOG("Okienko zamkniêto");
+					IMLOG("Niepoprawne has³o");
 					return 0;
 				}
-			}
-
-			//jeœli has³o siê zgadza zwracamy 1, jeœli nie 0
-			if((std::string)sde.pass == (std::string)GETSTRA(kLock::Config::Password))
-			{
 				unlocking = 0;
-				IMLOG("Poprawne has³o");
-				return 1;
 			}
 			else
 			{
-				ICMessage(IMI_ERROR, (int)"Z³e has³o!");
-				unlocking = 0;
-				IMLOG("Niepoprawne has³o");
-				return 0;
+				IMLOG("Nie ma has³a");
+				if(ICMessage(IMI_CONFIRM, (int)text2.c_str()))
+				{
+					unlocking = 0;
+					IMLOG("Tak");
+					return 1;
+				}
+				else
+				{
+					unlocking = 0;
+					IMLOG("Nie");
+					return 0;
+				}
 			}
-			unlocking = 0;
 		}
 		else
 		{
@@ -230,7 +250,7 @@ namespace kLock
 			IMLOG("[Unlock]");
 
 			//jeœli has³o siê zgadza odblokowujemy
-			if(AskForPassword("kLock", "Konnekt zosta³ zablokowany.\r\nPodaj has³o dostêpu:"))
+			if(AskForPassword("kLock", "Konnekt zosta³ zablokowany.\r\nPodaj has³o dostêpu:", "Odblokowaæ?"))
 			{
 				IMLOG("Odblokowujê");
 
@@ -261,6 +281,7 @@ namespace kLock
 							CallAction(IMIG_CNT, IMIA_CNT_MSGOPEN, i->cnt);
 							SetWindowPos((HWND)UIGroupHandle(sUIAction(0, IMIG_MSGWND, i->cnt)), 0, i->r.left, i->r.top, i->r.right - i->r.left, i->r.bottom - i->r.top, 0);
 							SetWindowPlacement((HWND)UIGroupHandle(sUIAction(0, IMIG_MSGWND, i->cnt)), &i->placement);
+							CallAction(0xBE870, 0xBE8A5, i->cnt);
 						}
 						kLock::locked_windows.clear();
 					}

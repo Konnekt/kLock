@@ -27,33 +27,6 @@ namespace kLock
 
 		//subclassujemy g³ówne okno programu - nie pozwolimy mu siê póŸniej pokazaæ
 		old_mainwnd_proc = (WNDPROC)SetWindowLongPtr((HWND)UIGroupHandle(sUIAction(0, IMIG_MAINWND)), GWLP_WNDPROC, (LONG_PTR)MainWindowProc);
-		
-		//sprawdzamy, czy has³o nie jest puste…
-		if(!strlen(GETSTRA(kLock::Config::Password)))
-		{
-			//i jeœli tak wymuszamy jego zmianê
-			ICMessage(IMI_INFORM, (int)"Przed pierwszym u¿yciem ustaw has³o blokowania Konnekta!");
-			sDIALOG_access sde;
-
-			sde.pass = "";
-			sde.info = "Podaj nowe has³o";
-			sde.handle = (HWND)UIGroupHandle(sUIAction(0, IMIG_MAINWND));
-			sde.title = "kLock";
-			for(;;)
-			{
-				if(!ICMessage(IMI_DLGSETPASS, (int)&sde))
-				{
-					return 0;
-				}
-				if(strlen(sde.pass))
-				{
-					break;
-				}
-				ICMessage(IMI_ERROR,(int)"Has³o nie mo¿e byæ puste!");
-			}
-			SETSTR(kLock::Config::Password, sde.pass);
-			ICMessage(IMI_INFORM, (int)"Has³o zmienione.");
-		}
 
 		//jeœli poprzednim razem by³o zablokowane blokujemy
 		if(GETINT(kLock::Config::State))
@@ -203,7 +176,7 @@ namespace kLock
 					}
 					else if(GETINT(kLock::Config::AskForPasswordOnHistory))
 					{
-						if(!AskForPassword("kLock", "Dostêp do historii jest zablokowany.\r\nPodaj has³o dostêpu:"))
+						if(!AskForPassword("kLock", "Dostêp do historii jest zablokowany.\r\nPodaj has³o dostêpu:", "Otworzyæ historiê?"))
 						{
 							return 0;
 						}
@@ -225,7 +198,7 @@ namespace kLock
 					}
 					else if(GETINT(kLock::Config::AskForPasswordOnHistory))
 					{
-						if(!AskForPassword("kLock", "Dostêp do historii jest zablokowany.\r\nPodaj has³o dostêpu:"))
+						if(!AskForPassword("kLock", "Dostêp do historii jest zablokowany.\r\nPodaj has³o dostêpu:", "Otworzyæ historiê?"))
 						{
 							return 0;
 						}
@@ -247,7 +220,7 @@ namespace kLock
 					}
 					else if(GETINT(kLock::Config::AskForPasswordOnHistory))
 					{
-						if(!AskForPassword("kLock", "Dostêp do historii jest zablokowany.\r\nPodaj has³o dostêpu:"))
+						if(!AskForPassword("kLock", "Dostêp do historii jest zablokowany.\r\nPodaj has³o dostêpu:", "Otworzyæ historiê?"))
 						{
 							return 0;
 						}
@@ -279,7 +252,7 @@ namespace kLock
 
 					if(!acts_enabled)
 					{
-						if(AskForPassword("kLock", "Zmiana ustawieñ jest zablokowana.\r\nPodaj has³o dostêpu:", (HWND)UIGroupHandle(sUIAction(0, IMIG_CFGWND))))
+						if(AskForPassword("kLock", "Zmiana ustawieñ jest zablokowana.\r\nPodaj has³o dostêpu:", "Odblokowaæ ustawienia?", (HWND)UIGroupHandle(sUIAction(0, IMIG_CFGWND))))
 						{
 							EnableActs();
 						}
@@ -311,12 +284,6 @@ namespace kLock
 					{
 						Lock();
 					}						
-				}
-				else if(anBase->code == ACTN_CREATE)
-				{
-					IMLOG("[ActionProc]: anBase->act.id = kLock::Config::Lock, anBase->code = ACTN_CREATE");
-
-					UIActionSetText(anBase->act, GETINT(kLock::Config::State) ? "Odblokuj" : "Zablokuj");
 				}
 				break;
 			}
