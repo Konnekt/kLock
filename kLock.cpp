@@ -74,14 +74,14 @@ namespace kLock
 		if(GETINT(kLock::Config::ButtonOnToolbar))
 		{
 			IMLOG("Tworzê przycisk w grupie wtyczek");
-			UIActionAdd(Ctrl->IMessage(IMI_GETPLUGINSGROUP, 0, 0), kLock::Acts::Lock, ACTR_INIT, "kLock", 35);
+			UIActionAdd(Ctrl->IMessage(IMI_GETPLUGINSGROUP, 0, 0), kLock::Acts::Lock, ACTR_INIT, GETINT(kLock::Config::State) ? "Odblokuj" : "Zablokuj", 35);
 		}
 
 		//przycisk w tray'u
 		if(GETINT(kLock::Config::ButtonInTray))
 		{
 			IMLOG("Tworzê przycisk w menu w tray'u");
-			UIActionInsert(IMIG_TRAY, kLock::Acts::Lock, Ctrl->IMessage(IMI_GROUP_ACTIONSCOUNT, 0, 0, (int)&sUIAction(IMIG_MAINWND, IMIG_TRAY)) - 1, ACTR_INIT, "kLock", 35);
+			UIActionInsert(IMIG_TRAY, kLock::Acts::Lock, Ctrl->IMessage(IMI_GROUP_ACTIONSCOUNT, 0, 0, (int)&sUIAction(IMIG_MAINWND, IMIG_TRAY)) - 1, ACTR_INIT, GETINT(kLock::Config::State) ? "Odblokuj" : "Zablokuj", 35);
 		}
 
 		//przycisk na g³ównym toolbarze
@@ -90,7 +90,7 @@ namespace kLock
 			if(Ctrl->IMessage(IMI_GETPLUGINSGROUP, 0, 0) != IMIG_MAINTB)
 			{
 				IMLOG("Tworzê przycisk na g³ównym toolbarze");
-				UIActionAdd(IMIG_MAINTB, kLock::Acts::Lock, ACTR_INIT, "kLock", 35);
+				UIActionAdd(IMIG_MAINTB, kLock::Acts::Lock, ACTR_INIT, GETINT(kLock::Config::State) ? "Odblokuj" : "Zablokuj", 35);
 			}
 		}
 
