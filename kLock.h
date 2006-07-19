@@ -29,6 +29,7 @@ namespace kLock
 		const unsigned LockKNotify = Net * 1000 + 116; //blokuj powiadomienia kNotify
 		const unsigned LockkMigacz = Net * 1000 + 117; //blokuj kMigacza
 		const unsigned TurnOffkAwayOnUnlocking = Net * 1000 + 118; //przy odblokowywaniu wy³¹czaj kAway
+		const unsigned BlockOnStart = Net * 1000 + 119; //blokuj zawsze na starcie
 	}
 
 	namespace Api
