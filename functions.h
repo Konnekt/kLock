@@ -1,3 +1,7 @@
+/*
+ * License - http://www.gnu.org/licenses/lgpl.txt
+ */
+
 namespace kLock
 {
 	//funkcja obs³uguj¹ca wiadomoœci g³ównego okna

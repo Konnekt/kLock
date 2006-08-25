@@ -1,3 +1,7 @@
+/*
+ * License - http://www.gnu.org/licenses/lgpl.txt
+ */
+
 #include "includes.h"
 
 namespace kLock
@@ -271,7 +275,7 @@ namespace kLock
 
 						if(msg_visible)
 						{
-							ShowWindow((HWND)IMessage(Tabs::IM::GetTabWindow,Tabs::net,IMT_ALL), SW_SHOW);
+							ShowWindow((HWND)IMessage(Tabs::IM::GetTabWindow, Tabs::net,IMT_ALL), SW_SHOW);
 						}
 					}
 					else

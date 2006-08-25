@@ -1,3 +1,7 @@
+/*
+ * License - http://www.gnu.org/licenses/lgpl.txt
+ */
+
 namespace kLock
 {
 	//funkcja wywo³uj¹ca akcjê

@@ -1,3 +1,7 @@
+/*
+ * License - http://www.gnu.org/licenses/lgpl.txt
+ */
+
 namespace kLock
 {
 	const int Net = 307; //wartoœæ Net

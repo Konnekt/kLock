@@ -1,3 +1,7 @@
+/*
+ * License - http://www.gnu.org/licenses/lgpl.txt
+ */
+
 #include "includes.h"
 
 using namespace kLock;

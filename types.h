@@ -1,3 +1,7 @@
+/*
+ * License - http://www.gnu.org/licenses/lgpl.txt
+ */
+
 namespace kLock
 {
 	//struktura dla danych przymusowo przypinanych okienek

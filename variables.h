@@ -1,3 +1,7 @@
+/*
+ * License - http://www.gnu.org/licenses/lgpl.txt
+ */
+
 namespace kLock
 {
 	extern int cnt_history_owner; //poprzedni w³aœciciel akcji histori w menu kontaktu 
