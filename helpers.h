@@ -15,4 +15,7 @@ namespace kLock
 
 	//funkcja sprawdzaj¹ca, czy plugin o danym necie istnieje
 	int PluginExists(int net, int type = IMT_ALL);
+
+	//funkcja sprawdzaj¹ca, czy plugin o danym sigu istnieje
+	int PluginExists(std::string sig, int type = IMT_ALL);
 }

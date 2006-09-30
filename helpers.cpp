@@ -47,4 +47,9 @@ namespace kLock
 	{
 		return(Ctrl->ICMessage(IMC_FINDPLUG, net, type));
 	}
+
+	int PluginExists(std::string sig, int type)
+	{
+		return(Ctrl->ICMessage(IMC_FINDPLUG_BYSIG, (int)sig.c_str(), type));
+	}
 }

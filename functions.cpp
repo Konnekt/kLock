@@ -125,7 +125,7 @@ namespace kLock
 			//jeœli jest zaznaczona odpowiednia opcja blokujemy okienka rozmowy
 			if(GETINT(kLock::Config::LockTalkWindows))
 			{
-				if(PluginExists(Tabs::net))
+				if(PluginExists("TABLETKA"))
 				{
 					IMLOG("Blokujê okienka rozmowy, TabletKa w³¹czona");
 
@@ -263,7 +263,7 @@ namespace kLock
 
 				//odblokowujemy okienka rozmowy
 				{
-					if(PluginExists(Tabs::net))
+					if(PluginExists("TABLETKA"))
 					{
 						for(std::list<kLock::LockedWindow>::iterator i = kLock::locked_windows.begin(); i != kLock::locked_windows.end(); i++)
 						{
