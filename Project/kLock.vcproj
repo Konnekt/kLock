@@ -25,7 +25,7 @@
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
-				UsePrecompiledHeader="2"
+				UsePrecompiledHeader="3"
 				PrecompiledHeaderThrough="includes.h"
 				PrecompiledHeaderFile="$(IntDir)/$(TargetName).pch"
 				ObjectFile="$(IntDir)/"
@@ -82,7 +82,7 @@
 				Optimization="3"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;KLOCK_EXPORTS"
 				RuntimeLibrary="2"
-				UsePrecompiledHeader="2"
+				UsePrecompiledHeader="3"
 				PrecompiledHeaderThrough="includes.h"
 				PrecompiledHeaderFile="$(IntDir)/$(TargetName).pch"
 				ObjectFile="$(IntDir)/"
@@ -153,9 +153,6 @@ rmdir /S /Q plugins
 				RelativePath="..\kLock.cpp">
 			</File>
 			<File
-				RelativePath="..\konnekt_defs.cpp">
-			</File>
-			<File
 				RelativePath="..\variables.cpp">
 			</File>
 		</Filter>
@@ -174,6 +171,9 @@ rmdir /S /Q plugins
 			</File>
 			<File
 				RelativePath="..\kLock.h">
+			</File>
+			<File
+				RelativePath="..\stdafx.h">
 			</File>
 			<File
 				RelativePath="..\types.h">

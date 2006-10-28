@@ -2,6 +2,7 @@
  * License - http://www.gnu.org/licenses/lgpl.txt
  */
 
+#include "stdafx.h"
 #include "includes.h"
 
 using namespace kLock;

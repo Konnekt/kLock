@@ -38,7 +38,7 @@ namespace kLock
 
 	namespace Api
 	{
-		const unsigned Unlock = Net * 1000 + 1; //po wys³aniu zostanie wyœwietlony monit o has³o i, jeœli bêdzie poprawne, odblokowany K, zwraca true jeœli po wywo³aniu K jest odblokowane, false jeœli nie
+		const unsigned Unlock = Net * 1000 + 1; //po wys³aniu zostanie wyœwietlony monit o has³o i, jeœli bêdzie poprawne, odblokowany K. Zwraca true jeœli po wywo³aniu K jest odblokowany, false jeœli nie.
 		const unsigned IsUnlocked = Net * 1000 + 4; //zwraca true jeœli odblokowane, false jeœli zablokowane
 		const unsigned IsUnlockedForKNotify = Net * 1000 + 2; //zale¿ne od opcji, czy blokowaæ kNotify - u¿ywaæ normalnego
 		const unsigned IsUnlockedForkMigacz = Net * 1000 + 5; //zale¿ne od opcji, czy blokowaæ kMigacza - u¿ywaæ normalnego
