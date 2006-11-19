@@ -175,7 +175,7 @@ namespace kLock
 		return 1;
 	}
 
-	ActionProc(sUIActionNotify_base* anBase)
+	int ActionProc(sUIActionNotify_base* anBase)
 	{
 		switch(anBase->act.id)
 		{

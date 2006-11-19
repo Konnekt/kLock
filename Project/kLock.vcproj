@@ -1,139 +1,184 @@
 <?xml version="1.0" encoding="windows-1250"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="7.10"
+	Version="8,00"
 	Name="kLock"
-	ProjectGUID="{7C0BA9C9-46EA-42AC-AF35-8FA3A7353F3D}"
-	RootNamespace="kLock"
-	Keyword="Win32Proj">
+	ProjectGUID="{0264B4BA-8091-4240-8D30-D8334572C61C}"
+	RootNamespace="szuKacz"
+	Keyword="Win32Proj"
+	>
 	<Platforms>
 		<Platform
-			Name="Win32"/>
+			Name="Win32"
+		/>
 	</Platforms>
+	<ToolFiles>
+	</ToolFiles>
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory="../Builds/Debug"
-			IntermediateDirectory="../Temp/Debug"
+			OutputDirectory="$(SolutionDir)..\Builds\$(ConfigurationName)"
+			IntermediateDirectory="$(SolutionDir)..\Temp\$(ConfigurationName)"
 			ConfigurationType="2"
-			CharacterSet="2">
+			CharacterSet="2"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+			/>
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories=""
-				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;KLOCK_EXPORTS"
-				MinimalRebuild="TRUE"
+				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;KAWAY2_EXPORTS"
+				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
-				UsePrecompiledHeader="3"
+				UsePrecompiledHeader="2"
 				PrecompiledHeaderThrough="stdafx.h"
-				PrecompiledHeaderFile="$(IntDir)/$(TargetName).pch"
-				ObjectFile="$(IntDir)/"
-				ProgramDataBaseFileName="$(IntDir)/vc70.pdb"
 				WarningLevel="2"
-				Detect64BitPortabilityProblems="FALSE"
-				DebugInformationFormat="3"/>
+				Detect64BitPortabilityProblems="true"
+				DebugInformationFormat="4"
+				ShowIncludes="true"
+			/>
 			<Tool
-				Name="VCCustomBuildTool"/>
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalOptions="/FORCE"
-				OutputFile="$(OutDir)/kLock_d.dll"
-				LinkIncremental="1"
-				IgnoreAllDefaultLibraries="FALSE"
-				IgnoreDefaultLibraryNames=""
-				GenerateDebugInformation="TRUE"
-				ProgramDatabaseFile="$(IntDir)/klock.pdb"
-				GenerateMapFile="FALSE"
+				AdditionalDependencies="comctl32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib"
+				OutputFile="$(OutDir)\$(ProjectName)_d.dll"
+				LinkIncremental="2"
+				AdditionalLibraryDirectories="$(ProjectDir)Lib"
+				GenerateDebugInformation="true"
+				GenerateMapFile="true"
+				MapExports="true"
 				SubSystem="2"
-				ImportLibrary="$(IntDir)/klock.lib"
-				TargetMachine="1"/>
+				TargetMachine="1"
+			/>
 			<Tool
-				Name="VCMIDLTool"/>
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCManifestTool"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCAppVerifierTool"
+			/>
+			<Tool
+				Name="VCWebDeploymentTool"
+			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				Description="Coping to Konnekt folder..."
-				CommandLine="copy &quot;$(TargetDir)$(TargetFileName)&quot; &quot;D:\Program Files\Konnekt\plugins&quot;"/>
-			<Tool
-				Name="VCPreBuildEventTool"/>
-			<Tool
-				Name="VCPreLinkEventTool"/>
-			<Tool
-				Name="VCResourceCompilerTool"/>
-			<Tool
-				Name="VCWebServiceProxyGeneratorTool"/>
-			<Tool
-				Name="VCXMLDataGeneratorTool"/>
-			<Tool
-				Name="VCWebDeploymentTool"/>
-			<Tool
-				Name="VCManagedWrapperGeneratorTool"/>
-			<Tool
-				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+				Description="Coping to Konnekt folder…"
+				CommandLine="copy &quot;$(TargetDir)$(TargetFileName)&quot; &quot;D:\Program Files\Konnekt\plugins&quot;"
+			/>
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory="../Builds/Release"
-			IntermediateDirectory="../Temp/Release"
+			OutputDirectory="$(SolutionDir)..\Builds\$(ConfigurationName)"
+			IntermediateDirectory="$(SolutionDir)..\Temp\$(ConfigurationName)"
 			ConfigurationType="2"
-			CharacterSet="2">
+			CharacterSet="2"
+			WholeProgramOptimization="1"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				Optimization="3"
-				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;KLOCK_EXPORTS"
+				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;KAWAY2_EXPORTS"
 				RuntimeLibrary="2"
-				UsePrecompiledHeader="3"
+				UsePrecompiledHeader="2"
 				PrecompiledHeaderThrough="stdafx.h"
-				PrecompiledHeaderFile="$(IntDir)/$(TargetName).pch"
-				ObjectFile="$(IntDir)/"
-				ProgramDataBaseFileName="$(IntDir)/vc70.pdb"
 				WarningLevel="2"
-				Detect64BitPortabilityProblems="FALSE"
-				DebugInformationFormat="3"/>
+				Detect64BitPortabilityProblems="true"
+				DebugInformationFormat="3"
+			/>
 			<Tool
-				Name="VCCustomBuildTool"/>
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalOptions="/FORCE"
-				OutputFile="$(OutDir)/kLock.dll"
+				AdditionalDependencies="comctl32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib"
 				LinkIncremental="1"
-				GenerateDebugInformation="FALSE"
+				AdditionalLibraryDirectories="$(ProjectDir)Lib"
+				IgnoreDefaultLibraryNames=""
+				GenerateDebugInformation="true"
 				SubSystem="2"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
-				ImportLibrary="$(IntDir)/klock.lib"
-				TargetMachine="1"/>
+				TargetMachine="1"
+			/>
 			<Tool
-				Name="VCMIDLTool"/>
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCManifestTool"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCAppVerifierTool"
+			/>
+			<Tool
+				Name="VCWebDeploymentTool"
+			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				Description="Coping to Konnekt folder, creating kUpdate and zip packages..."
-				CommandLine="cd $(TargetDir)
-copy &quot;$(TargetFileName)&quot; &quot;D:\Program Files\Konnekt\plugins&quot;
-zip -0q $(TargetName) $(TargetFileName)
-cd %temp%
-mkdir plugins
-copy &quot;$(TargetDir)$(TargetFileName)&quot; &quot;plugins&quot;
-tar czf &quot;$(TargetName).tgz&quot; &quot;plugins&quot;
-copy $(TargetName).tgz &quot;$(TargetDir)&quot;
-rmdir /S /Q plugins
-"/>
-			<Tool
-				Name="VCPreBuildEventTool"/>
-			<Tool
-				Name="VCPreLinkEventTool"/>
-			<Tool
-				Name="VCResourceCompilerTool"/>
-			<Tool
-				Name="VCWebServiceProxyGeneratorTool"/>
-			<Tool
-				Name="VCXMLDataGeneratorTool"/>
-			<Tool
-				Name="VCWebDeploymentTool"/>
-			<Tool
-				Name="VCManagedWrapperGeneratorTool"/>
-			<Tool
-				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+				Description="Coping to Konnekt folder, creating kUpdate and zip packages…"
+				CommandLine="cd $(TargetDir)&#x0D;&#x0A;copy &quot;$(TargetFileName)&quot; &quot;D:\Program Files\Konnekt\plugins&quot;&#x0D;&#x0A;zip -0q $(TargetName) $(TargetFileName)&#x0D;&#x0A;cd %temp%&#x0D;&#x0A;mkdir plugins&#x0D;&#x0A;copy &quot;$(TargetDir)$(TargetFileName)&quot; &quot;plugins&quot;&#x0D;&#x0A;tar czf &quot;$(TargetName).tgz&quot; &quot;plugins&quot;&#x0D;&#x0A;copy $(TargetName).tgz &quot;$(TargetDir)&quot;&#x0D;&#x0A;rmdir /S /Q plugins&#x0D;&#x0A;"
+			/>
 		</Configuration>
 	</Configurations>
 	<References>
@@ -141,63 +186,104 @@ rmdir /S /Q plugins
 	<Files>
 		<Filter
 			Name="Source Files"
-			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx"
-			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}">
+			Filter="cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx"
+			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
+			>
 			<File
-				RelativePath="..\functions.cpp">
+				RelativePath="..\functions.cpp"
+				>
 			</File>
 			<File
-				RelativePath="..\helpers.cpp">
+				RelativePath="..\helpers.cpp"
+				>
 			</File>
 			<File
-				RelativePath="..\kLock.cpp">
+				RelativePath="..\kLock.cpp"
+				>
 			</File>
 			<File
-				RelativePath="..\variables.cpp">
+				RelativePath="..\stdafx.cpp"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="1"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="1"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\variables.cpp"
+				>
 			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
-			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}">
+			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
+			>
 			<File
-				RelativePath="..\functions.h">
+				RelativePath="..\functions.h"
+				>
 			</File>
 			<File
-				RelativePath="..\helpers.h">
+				RelativePath="..\helpers.h"
+				>
 			</File>
 			<File
-				RelativePath="..\includes.h">
+				RelativePath="..\includes.h"
+				>
 			</File>
 			<File
-				RelativePath="..\kLock.h">
+				RelativePath="..\kLock.h"
+				>
 			</File>
 			<File
-				RelativePath="..\stdafx.h">
+				RelativePath="..\stdafx.h"
+				>
 			</File>
 			<File
-				RelativePath="..\types.h">
+				RelativePath="..\types.h"
+				>
 			</File>
 			<File
-				RelativePath="..\variables.h">
+				RelativePath="..\variables.h"
+				>
 			</File>
 			<File
-				RelativePath="..\version.h">
+				RelativePath="..\version.h"
+				>
 			</File>
 		</Filter>
 		<Filter
 			Name="Resource Files"
-			Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx"
-			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}">
+			Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav"
+			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}"
+			>
 			<File
-				RelativePath="..\resources\resources.rc">
+				RelativePath="..\Resources\resource.h"
+				>
+			</File>
+			<File
+				RelativePath="..\Resources\resources.rc"
+				>
 			</File>
 		</Filter>
 		<Filter
 			Name="Utilities Files"
-			Filter="">
+			>
 			<File
-				RelativePath="..\Utils\changelog.txt">
+				RelativePath="..\Utils\changelog.txt"
+				>
 			</File>
 		</Filter>
 	</Files>
