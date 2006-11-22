@@ -13,7 +13,7 @@ namespace kLock
 		sUIActionNotify_2params akcja =	sUIActionNotify_2params();											
 		akcja.act = act;
 		akcja.code = ACTN_ACTION;
-		ICMessage(IMI_ACTION_CALL,	(int)&akcja, 0);
+		ICMessage(IMI_ACTION_CALL, (int)&akcja, 0);
 	}
 
 	//funkcja wywo³uj¹ca akcjê
@@ -46,11 +46,11 @@ namespace kLock
 
 	int PluginExists(int net, int type)
 	{
-		return(Ctrl->ICMessage(IMC_FINDPLUG, net, type));
+		return Ctrl->ICMessage(IMC_FINDPLUG, net, type);
 	}
 
 	int PluginExists(std::string sig, int type)
 	{
-		return(Ctrl->ICMessage(IMC_FINDPLUG_BYSIG, (int)sig.c_str(), type));
+		return Ctrl->ICMessage(IMC_FINDPLUG_BYSIG, (int)sig.c_str(), type);
 	}
 }
