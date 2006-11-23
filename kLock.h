@@ -34,6 +34,7 @@ namespace kLock
 		const unsigned LockkMigacz = Net * 1000 + 117; //blokuj kMigacza
 		const unsigned TurnOffkAwayOnUnlocking = Net * 1000 + 118; //przy odblokowywaniu wy³¹czaj kAway
 		const unsigned BlockOnStart = Net * 1000 + 119; //blokuj zawsze na starcie
+		const unsigned SynchronizeWithExtendedAway = Net * 1000 + 120; //synchronizacja z extended autoawayem
 	}
 
 	namespace Api

@@ -68,6 +68,7 @@ namespace kLock
 			Ctrl->SetColumn(DTCFG, kLock::Config::ButtonOnMainToolbar, DT_CT_INT, 0, "kLock/ButtonOnMainToolbar");
 			Ctrl->SetColumn(DTCFG, kLock::Config::TurnOffkAwayOnUnlocking, DT_CT_INT, 0, "kLock/TurnOffkAwayOnUnlocking");
 			Ctrl->SetColumn(DTCFG, kLock::Config::BlockOnStart, DT_CT_INT, 0, "kLock/BlockOnStart");
+			Ctrl->SetColumn(DTCFG, kLock::Config::SynchronizeWithExtendedAway, DT_CT_INT, 0, "kLock/SynchronizeWithExtendedAway");
 		}
 		return 1;
 	}
@@ -154,6 +155,7 @@ namespace kLock
 					if(PluginExists(kAway2::net))
 					{
 						IMLOG("Jest kAway2, wyœwietlam opcje");
+						UIActionCfgAdd(kLock::Config::Group, kLock::Config::SynchronizeWithExtendedAway, ACTT_CHECK, "Synchronizuj z trybem extended auto-away", kLock::Config::SynchronizeWithExtendedAway);
 						UIActionCfgAdd(kLock::Config::Group, kLock::Config::SynchronizeWithkAway, ACTT_CHECK, "Synchronizuj z kAway2", kLock::Config::SynchronizeWithkAway);
 						UIActionCfgAdd(kLock::Config::Group, kLock::Config::TurnOffkAwayOnUnlocking, ACTT_CHECK, "Wy³¹czaj kAway2 przy odblokowywaniu", kLock::Config::TurnOffkAwayOnUnlocking);
 					}
@@ -368,9 +370,19 @@ int __stdcall IMessageProc(sIMessage_base * msgBase)
 			}
 			return 1;
 		}
-		case kAway2::api::isAway:
+		case kAway2::im::extendedAutoAway:
 		{
-			IMLOG("[IMessageProc]: msgBase->id = kAway2::api::isAway");
+			IMLOG("[IMessageProc]: msgBase->id = kAway2::im::extendedAutoAway");
+
+			if(GETINT(kLock::Config::SynchronizeWithExtendedAway))
+			{
+				Lock();
+			}
+			return 1;
+		}
+		case kAway2::im::away:
+		{
+			IMLOG("[IMessageProc]: msgBase->id = kAway2::im::away");
 
 			if(GETINT(kLock::Config::SynchronizeWithkAway))
 			{
@@ -385,8 +397,6 @@ int __stdcall IMessageProc(sIMessage_base * msgBase)
 		case IM_UIACTION: return ActionProc((sUIActionNotify_base*)msg->p1);
 	}
 	if(Ctrl)
-	{
 		Ctrl->setError(IMERROR_NORESULT);
-	}
 	return 0;
 }
