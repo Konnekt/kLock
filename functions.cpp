@@ -198,7 +198,7 @@ namespace kLock
 			}
 
 			//jeœli jest zaznaczona opcja usuwamy ikonkê z tray'a
-			if(GETINT(kLock::Config::LockTray))
+			if(GETINT(kLock::Config::LockTray) && GETINT(kLock::Config::LockMainWindow))
 			{
 				IMLOG("Usuwam ikonkê z tray'a");
 
@@ -375,7 +375,8 @@ namespace kLock
 		UIActionSetStatus(sUIAction(kLock::Config::Group, kLock::Config::LockSound), 0, ACTS_DISABLED);
 		UIActionSetStatus(sUIAction(kLock::Config::Group, kLock::Config::LockTalkWindows), 0, ACTS_DISABLED);
 		UIActionSetStatus(sUIAction(kLock::Config::Group, kLock::Config::SynchronizeWithAway), 0, ACTS_DISABLED);
-		UIActionSetStatus(sUIAction(kLock::Config::Group, kLock::Config::LockTray), 0, ACTS_DISABLED);
+		if(*UIActionCfgGetValue(sUIAction(kLock::Config::Group, kLock::Config::LockMainWindow), 0, 0) != '0' && *UIActionCfgGetValue(sUIAction(kLock::Config::Group, kLock::Config::LockTalkWindows), 0, 0) != '0')
+			UIActionSetStatus(sUIAction(kLock::Config::Group, kLock::Config::LockTray), 0, ACTS_DISABLED);
 		UIActionSetStatus(sUIAction(kLock::Config::Group, kLock::Config::LockProcess), 0, ACTS_DISABLED);
 		UIActionSetStatus(sUIAction(kLock::Config::Group, kLock::Config::ButtonInTray), 0, ACTS_DISABLED);
 		UIActionSetStatus(sUIAction(kLock::Config::Group, kLock::Config::ButtonOnToolbar), 0, ACTS_DISABLED);

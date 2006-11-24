@@ -120,8 +120,8 @@ namespace kLock
 
 			UIActionCfgAdd(kLock::Config::Group, 0, ACTT_GROUP, "Wybierz co blokowaæ");
 			{
-				UIActionCfgAdd(kLock::Config::Group, kLock::Config::LockMainWindow, ACTT_CHECK, "Blokuj okno g³ówne programu", kLock::Config::LockMainWindow);
-				UIActionCfgAdd(kLock::Config::Group, kLock::Config::LockTalkWindows, ACTT_CHECK, "Blokuj okienka rozmowy i historiê", kLock::Config::LockTalkWindows);
+				UIActionCfgAdd(kLock::Config::Group, kLock::Config::LockMainWindow, ACTT_CHECK|ACTR_STATUS, "Blokuj okno g³ówne programu", kLock::Config::LockMainWindow);
+				UIActionCfgAdd(kLock::Config::Group, kLock::Config::LockTalkWindows, ACTT_CHECK|ACTR_STATUS, "Blokuj okienka rozmowy i historiê", kLock::Config::LockTalkWindows);
 				if(Konnekt::ShowBits::checkLevel(Konnekt::ShowBits::levelAdvanced))
 				{
 					UIActionCfgAdd(kLock::Config::Group, kLock::Config::LockTray, ACTT_CHECK, "Ukrywaj ikonkê w tray'u", kLock::Config::LockTray);
@@ -268,12 +268,10 @@ namespace kLock
 				{
 					IMLOG("[ActionProc]: anBase->act.id = kLock::Config::EnableActs, anBase->code = ACTN_ACTION");
 
-					if(!acts_enabled)
+					if(!kLock::acts_enabled)
 					{
 						if(AskForPassword("kLock", "Zmiana ustawieñ jest zablokowana.\r\nPodaj has³o dostêpu:", "Odblokowaæ ustawienia?", (HWND)UIGroupHandle(sUIAction(0, IMIG_CFGWND))))
-						{
 							EnableActs();
-						}
 					}
 					else
 					{
@@ -295,13 +293,9 @@ namespace kLock
 					IMLOG("[ActionProc]: anBase->act.id = kLock::Config::Lock, anBase->code = ACTN_ACTION");
 
 					if(GETINT(kLock::Config::State))
-					{
 						Unlock();
-					}
 					else
-					{
-						Lock();
-					}						
+						Lock();					
 				}
 				break;
 			}
@@ -312,10 +306,17 @@ namespace kLock
 					IMLOG("[ActionProc]: anBase->act.id = kLock::Config::LockTray, anBase->code = ACTN_ACTION");
 
 					if(*UIActionCfgGetValue(anBase->act, 0, 0) != '0')
-					{
 						ICMessage(IMI_WARNING, (int)"Przed w³¹czeniem tej opcji ustaw odblokowuj¹cy skrót k.Lawy\n - inaczej nie odblokujesz Konnekta.");
-					}
 				}
+			}
+			case kLock::Config::LockMainWindow:
+			case kLock::Config::LockTalkWindows:
+			{
+				if(*UIActionCfgGetValue(sUIAction(kLock::Config::Group, kLock::Config::LockMainWindow), 0, 0) != '0' && *UIActionCfgGetValue(sUIAction(kLock::Config::Group, kLock::Config::LockTalkWindows), 0, 0) != '0')
+					UIActionSetStatus(sUIAction(kLock::Config::Group, kLock::Config::LockTray), 0, ACTS_DISABLED);
+				else if(acts_enabled)
+					UIActionSetStatus(sUIAction(kLock::Config::Group, kLock::Config::LockTray), -1, ACTS_DISABLED);
+				break;
 			}
 		}
 		return 0;
