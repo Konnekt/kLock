@@ -26,3 +26,17 @@
 #include <konnekt/kAway2.h>
 #include <konnekt/KNotify.h>
 #include <konnekt/kMigacz.h>
+
+//Stamina.lib
+#ifdef _DEBUG
+  #pragma comment(lib, "stamina_d.lib")
+#else
+  #pragma comment(lib, "stamina.lib")
+#endif
+#include <stamina/object.h>
+#include <stamina/objectimpl.h>
+
+//boost
+#include <boost/signal.hpp>
+#include <boost/function.hpp>
+#include <boost/bind.hpp>

@@ -5,8 +5,8 @@
 #pragma once
 
 //wewnêtrzne
-#include "types.h"
+#include "Types.h"
+#include "Controller.h"
 #include "kLock.h"
-#include "variables.h"
-#include "functions.h"
-#include "helpers.h"
+#include "Functions.h"
+#include "Helpers.h"

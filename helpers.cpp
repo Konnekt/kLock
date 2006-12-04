@@ -2,13 +2,13 @@
  * License - http://www.gnu.org/licenses/lgpl.txt
  */
 
-#include "stdafx.h"
-#include "includes.h"
+#include "StdAfx.h"
+#include "Includes.h"
 
 namespace kLock
 {
 	//funkcja wywo³uj¹ca akcjê
-	void CallAction(sUIAction act)
+	void callAction(sUIAction act)
 	{
 		sUIActionNotify_2params akcja =	sUIActionNotify_2params();											
 		akcja.act = act;
@@ -17,12 +17,12 @@ namespace kLock
 	}
 
 	//funkcja wywo³uj¹ca akcjê
-	void CallAction(int parent, int id, int cnt)
+	void callAction(int parent, int id, int cnt)
 	{
-		CallAction(sUIAction(parent, id, cnt));
+		callAction(sUIAction(parent, id, cnt));
 	}
 
-	int SubclassAction(int group, int id, int mask)
+	int subclassAction(int group, int id, int mask)
 	{
 		sUIActionInfo nfo(group, id);
 		int prevOwner;
@@ -44,12 +44,12 @@ namespace kLock
 		return prevOwner;
 	}
 
-	int PluginExists(int net, int type)
+	int pluginExists(int net, int type)
 	{
 		return Ctrl->ICMessage(IMC_FINDPLUG, net, type);
 	}
 
-	int PluginExists(std::string sig, int type)
+	int pluginExists(std::string sig, int type)
 	{
 		return Ctrl->ICMessage(IMC_FINDPLUG_BYSIG, (int)sig.c_str(), type);
 	}
