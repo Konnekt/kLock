@@ -11,8 +11,9 @@ namespace kLock
 
 	Controller::Controller()
 	{
-		this->addStaticValue(IM_PLUG_TYPE, IMT_UI|IMT_CONFIG);
-		this->addStaticValue(IM_PLUG_PRIORITY, PLUGP_STANDARD);
+    this->config = new CfgController(this);
+
+		this->addStaticValue(IM_PLUG_TYPE, IMT_UI | IMT_CONFIG);
 		this->addStaticValue(IM_PLUG_NAME, kLock::name);
 		this->addStaticValue(IM_PLUG_SIG, kLock::sig);
 		this->addStaticValue(IM_PLUG_NET, kLock::net);
@@ -30,24 +31,28 @@ namespace kLock
 		this->registerObserver(kLock::API::isUnlockedForKNotify, bind(resolve_cast0(&Controller::apiIsUnlockedForKNotify), this));
 		this->registerObserver(kLock::API::isUnlockedForkMigacz, bind(resolve_cast0(&Controller::apiIsUnlockedForkMigacz), this));
 
-		this->setColumn(DTCFG, kLock::CFG::lockState, DT_CT_INT|DT_CF_SECRET, 0, "kLock/lockState");
-		this->setColumn(DTCFG, kLock::CFG::password, DT_CT_STR|DT_CF_SECRET, "", "kLock/lockPassword");
-		this->setColumn(DTCFG, kLock::CFG::lockMainWindow, DT_CT_INT, 1, "kLock/lockListAndToolbars");
-		this->setColumn(DTCFG, kLock::CFG::lockTalkWindows, DT_CT_INT, 1, "kLock/lockTalkWindows");
-		this->setColumn(DTCFG, kLock::CFG::lockSound, DT_CT_INT, 0, "kLock/lockSound");
-		this->setColumn(DTCFG, kLock::CFG::lockTray, DT_CT_INT, 0, "kLock/lockTray");
-		this->setColumn(DTCFG, kLock::CFG::lockProcess, DT_CT_INT, 0, "kLock/lockProcess");
-		this->setColumn(DTCFG, kLock::CFG::lockKNotify, DT_CT_INT, 0, "kLock/lockKNotify");
-		this->setColumn(DTCFG, kLock::CFG::lockkMigacz, DT_CT_INT, 0, "kLock/lockkMigacz");
-		this->setColumn(DTCFG, kLock::CFG::askForPasswordOnHistory, DT_CT_INT, 0, "kLock/askForPasswordOnHistoryAccess");
-		this->setColumn(DTCFG, kLock::CFG::synchronizeWithAway, DT_CT_INT, 0, "kLock/synchronizeWithAutoAway");
-		this->setColumn(DTCFG, kLock::CFG::synchronizeWithExtendedAway, DT_CT_INT, 0, "kLock/synchronizeWithExtendedAway");
-		this->setColumn(DTCFG, kLock::CFG::synchronizeWithkAway, DT_CT_INT, 0, "kLock/synchronizeWithkAway2");
-		this->setColumn(DTCFG, kLock::CFG::buttonOnToolbar, DT_CT_INT, 0, "kLock/buttonOnToolbar");
-		this->setColumn(DTCFG, kLock::CFG::buttonInTray, DT_CT_INT, 1, "kLock/buttonInTray");
-		this->setColumn(DTCFG, kLock::CFG::buttonOnMainToolbar, DT_CT_INT, 0, "kLock/buttonOnMainToolbar");
-		this->setColumn(DTCFG, kLock::CFG::disablekAwayWhenUnlocking, DT_CT_INT, 0, "kLock/disablekAwayWhenUnlocking");
-		this->setColumn(DTCFG, kLock::CFG::blockOnStart, DT_CT_INT, 0, "kLock/blockOnStart");
+    this->subclassAction(IMIA_MAIN_HISTORY, IMIG_MAIN_CNT);
+    this->subclassAction(IMIA_CNT_HISTORY, IMIG_CNT);
+    this->subclassAction(IMIA_MSG_HISTORY, IMIG_MSGTB);
+
+		config->setColumn(DTCFG, kLock::CFG::lockState, DT_CT_INT | DT_CF_SECRET, 0, "kLock/lockState");
+		config->setColumn(DTCFG, kLock::CFG::password, DT_CT_STR | DT_CF_SECRET, "", "kLock/lockPassword");
+		config->setColumn(DTCFG, kLock::CFG::lockMainWindow, DT_CT_INT, 1, "kLock/lockListAndToolbars");
+		config->setColumn(DTCFG, kLock::CFG::lockTalkWindows, DT_CT_INT, 1, "kLock/lockTalkWindows");
+		config->setColumn(DTCFG, kLock::CFG::lockSound, DT_CT_INT, 0, "kLock/lockSound");
+		config->setColumn(DTCFG, kLock::CFG::lockTray, DT_CT_INT, 0, "kLock/lockTray");
+		config->setColumn(DTCFG, kLock::CFG::lockProcess, DT_CT_INT, 0, "kLock/lockProcess");
+		config->setColumn(DTCFG, kLock::CFG::lockKNotify, DT_CT_INT, 0, "kLock/lockKNotify");
+		config->setColumn(DTCFG, kLock::CFG::lockkMigacz, DT_CT_INT, 0, "kLock/lockkMigacz");
+		config->setColumn(DTCFG, kLock::CFG::askForPasswordOnHistory, DT_CT_INT, 0, "kLock/askForPasswordOnHistoryAccess");
+		config->setColumn(DTCFG, kLock::CFG::synchronizeWithAway, DT_CT_INT, 0, "kLock/synchronizeWithAutoAway");
+		config->setColumn(DTCFG, kLock::CFG::synchronizeWithExtendedAway, DT_CT_INT, 0, "kLock/synchronizeWithExtendedAway");
+		config->setColumn(DTCFG, kLock::CFG::synchronizeWithkAway, DT_CT_INT, 0, "kLock/synchronizeWithkAway2");
+		config->setColumn(DTCFG, kLock::CFG::buttonOnToolbar, DT_CT_INT, 0, "kLock/buttonOnToolbar");
+		config->setColumn(DTCFG, kLock::CFG::buttonInTray, DT_CT_INT, 1, "kLock/buttonInTray");
+		config->setColumn(DTCFG, kLock::CFG::buttonOnMainToolbar, DT_CT_INT, 0, "kLock/buttonOnMainToolbar");
+		config->setColumn(DTCFG, kLock::CFG::disablekAwayWhenUnlocking, DT_CT_INT, 0, "kLock/disablekAwayWhenUnlocking");
+		config->setColumn(DTCFG, kLock::CFG::blockOnStart, DT_CT_INT, 0, "kLock/blockOnStart");
 	}
 
 	void Controller::onPrepare()
@@ -94,7 +99,7 @@ namespace kLock
 				UIActionCfgAdd(kLock::CFG::group, kLock::CFG::lockSound, ACTT_CHECK, "Wyciszaj dŸwiêki", kLock::CFG::lockSound);
 				if(pluginExists(KNotify::net))
 					UIActionCfgAdd(kLock::CFG::group, kLock::CFG::lockKNotify, ACTT_CHECK, "Blokuj powiadomienia kNotify" AP_TIPRICH "Wymaga zmodyfikowanego <b>kNotify</b>!", kLock::CFG::lockKNotify);
-				if(pluginExists(kMigacz::Net))
+        if(pluginExists(plugsNET::kmigacz))
 					UIActionCfgAdd(kLock::CFG::group, kLock::CFG::lockkMigacz, ACTT_CHECK, "Blokuj powiadomienia kMigacza", kLock::CFG::lockkMigacz);
 			}
 			UIActionCfgAdd(kLock::CFG::group, 0, ACTT_GROUPEND);
@@ -131,21 +136,12 @@ namespace kLock
 
 	void Controller::onStart()
 	{
-		//subclassujemy akcjê historii
-		this->historyOwner = subclassAction(IMIG_MAIN_CNT, IMIA_MAIN_HISTORY);
-
-		//subclassujemy akcjê historii w menu kontaktu
-		this->cntHistoryOwner = subclassAction(IMIG_CNT, IMIA_CNT_HISTORY);
-
-		//subclassujemy akcjê historii w oknie kontaktu
-		this->msgWndHistoryOwner = subclassAction(IMIG_MSGTB, IMIA_MSG_HISTORY);
-
 		if(!pluginExists("TABLETKA"))
 		{
 			IMLOG("Nie ma TabletKi, subclassujê akcjê kIEview");
 
 			//subclassujemy akcjê kontrolki kIEview - pozwoli nam wykrywaæ otwarcie okienka rozmowy
-			this->kIEviewOwner = subclassAction(IMIG_MSGWND, Konnekt::UI::ACT::msg_ctrlview);
+      this->subclassAction(IMIG_MSGWND, Konnekt::UI::ACT::msg_ctrlview);
 		}
 
 		//subclassujemy g³ówne okno programu - nie pozwolimy mu siê póŸniej pokazaæ
@@ -173,28 +169,17 @@ namespace kLock
 					if(GETINT(kLock::CFG::lockState) && GETINT(kLock::CFG::lockTalkWindows))
 					{
 						this->lock(L_Unlock);
-						this->setReturnCode(0);
-						return;
+						return this->setReturnCode(0);
 					}
 					else if(GETINT(kLock::CFG::askForPasswordOnHistory))
 					{
 						if(!this->askForPassword("kLock", "Dostêp do historii jest zablokowany.\r\nPodaj has³o dostêpu:", "Otworzyæ historiê?"))
 						{
-							this->setReturnCode(0);
-							return;
+							return this->setReturnCode(0);
 						}
 					}
 				}
-				switch(an->act.id)
-				{
-					case IMIA_MAIN_HISTORY:
-						this->setReturnCode(IMessageDirect(IM_UIACTION, this->historyOwner, (int)an));
-					case IMIA_CNT_HISTORY:
-						this->setReturnCode(IMessageDirect(IM_UIACTION, this->cntHistoryOwner, (int)an));
-					case IMIA_MSG_HISTORY:
-						this->setReturnCode(IMessageDirect(IM_UIACTION, this->msgWndHistoryOwner, (int)an));
-				}
-				break;
+        return this->forwardAction();
 			}
 			case Konnekt::UI::ACT::msg_ctrlview:
 			{
@@ -206,11 +191,10 @@ namespace kLock
 					{
 						sUIActionNotify_createWindow* anCW = static_cast<sUIActionNotify_createWindow*>(static_cast<sUIActionNotify_base*>(an));
 						DestroyWindow(anCW->hwndParent);
-						this->setReturnCode(0);
-						return;
+						return this->setReturnCode(0);
 					}
 				}
-				this->setReturnCode(IMessageDirect(IM_UIACTION, this->kIEviewOwner, (int)an));
+        return this->forwardAction();
 			}
 			case kLock::ACT::enableActs:
 			{

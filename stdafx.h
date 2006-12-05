@@ -10,6 +10,7 @@
 //standardowe
 #include <string>
 #include <list>
+#include <deque>
 
 //windowsowe
 #include <windows.h>
@@ -25,7 +26,8 @@
 #include <konnekt/lib.h>
 #include <konnekt/kAway2.h>
 #include <konnekt/KNotify.h>
-#include <konnekt/kMigacz.h>
+//#include <konnekt/kMigacz.h>
+#include <konnekt/plugsNET.h>
 
 //Stamina.lib
 #ifdef _DEBUG
@@ -35,6 +37,7 @@
 #endif
 #include <stamina/object.h>
 #include <stamina/objectimpl.h>
+#include <stamina/helpers.h>
 
 //boost
 #include <boost/signal.hpp>

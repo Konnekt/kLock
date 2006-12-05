@@ -4,6 +4,7 @@
 
 #pragma once
 #include "IMController.h"
+#include "CfgController.h"
 
 namespace kLock
 {
@@ -25,10 +26,6 @@ namespace kLock
 			int askForPassword(std::string title, std::string text, std::string text2, HWND parent = 0);
 
 		public:
-			int historyOwner; //poprzedni w³aœciciel akcji histori
-			int cntHistoryOwner; //poprzedni w³aœciciel akcji histori w menu kontaktu 
-			int msgWndHistoryOwner; //poprzedni w³aœciciel akcji histori w oknie kontaktu
-			int kIEviewOwner; //poprzedni w³aœciciel kontrolki kIEview
 			WNDPROC konnektWindowOldProc; //stary proc g³ównego okna
 
 		protected:
@@ -49,5 +46,6 @@ namespace kLock
 
 		protected:
 			static SharedPtr<Controller> instance;
+      oCfgCtrl config;
 	};
 }

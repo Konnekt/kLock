@@ -1,12 +1,33 @@
+/**
+  *  IMessage Controller class
+  *
+  *  Licensed under The GNU Lesser General Public License
+  *  Redistributions of files must retain the above copyright notice.
+  *
+  *  @filesource
+  *  @copyright    Copyright (c) 2005-2006 Sijawusz Pur Rahnama
+  *  @link         svn://konnekt.info/kaway2/ kAway2 plugin SVN Repo
+  *  @version      $Revision: 85 $
+  *  @modifiedby   $LastChangedBy: sija $
+  *  @lastmodified $Date: 2006-12-04 23:09:33 +0100 (Pn, 04 gru 2006) $
+  *  @license      http://creativecommons.org/licenses/LGPL/2.1/
+  */
+
 #pragma once
 
 #ifndef __IMESSAGECTRL_H__
 #define __IMESSAGECTRL_H__
 
+#include <boost/signal.hpp>
+#include <boost/function.hpp>
+#include <boost/bind.hpp>
+
 using namespace Stamina;
 using namespace boost;
 
 namespace Konnekt {
+  typedef void tIMCallback;
+
   template<typename TC, typename TR>
   TR (TC::* resolve_cast0(TR (TC::* pFunc)(void)))(void) {
     return pFunc;
@@ -20,10 +41,7 @@ namespace Konnekt {
   class IMController : public SharedObject<iSharedObject>, signals::trackable {
   public:
     /* Class version */
-	  STAMINA_OBJECT_CLASS_VERSION(IMController, iSharedObject, Version(0,1,0,0));
-
-  public:
-    typedef void tIMCallback;
+	  STAMINA_OBJECT_CLASS_VERSION(IMController, iSharedObject, Version(0,2,0,0));
 
   public:
     typedef function<tIMCallback(IMController*)> fOnIMessage;
@@ -31,23 +49,41 @@ namespace Konnekt {
 
   public:
     typedef std::map<String, signals::connection> tConnections;
-    typedef std::vector<sIMessage_setColumn*> tCfgCols;
 
     struct sObserver {
       tConnections connections;
       sigOnIMessage signal;
     };
 
+    struct sSubclassedAction {
+      static const int notFound = -1;
+
+      bool forwardable;
+      int prevOwner;
+      int mask;
+
+      int parent;
+      int id;
+
+      sSubclassedAction(): id(0), parent(0), prevOwner(0), forwardable(false), mask(UIAIM_ALL) { }
+
+      sSubclassedAction(int _id, int _parent, bool _forwardable = false, int _mask = UIAIM_ALL):
+        id(_id), parent(_parent), prevOwner(0), forwardable(_forwardable), mask(_mask) { }
+
+      sSubclassedAction(int _id, int _parent, bool _forwardable, int _prevOwner, int _mask):
+        id(_id), parent(_parent), prevOwner(_prevOwner), forwardable(_forwardable), mask(_mask) { }
+    };
+
+    typedef std::deque<sSubclassedAction> tSubclassedActions;
     typedef std::map<int, sObserver*> tObservers;
     typedef std::map<int, int> tStaticValues;
 
-  protected:
+  public:
     inline IMController() : returnCodeSet(false), returnCode(0) { 
-      // automagical registration of configuration columns (set via setColumn())
-      this->registerObserver(IM_SETCOLS, bind(resolve_cast0(&IMController::_setColumns), this));
       // setting/unsetting Ctrl global pointer
       this->registerObserver(IM_PLUG_INIT, bind(resolve_cast0(&IMController::_plugInit), this));
       this->registerObserver(IM_PLUG_DEINIT, bind(resolve_cast0(&IMController::_plugDeInit), this));
+      this->registerObserver(IM_UI_PREPARE, bind(resolve_cast0(&IMController::_subclass), this));
 
       // default values for common messages, may be overriden
       this->addStaticValue(IM_PLUG_NETNAME, 0);
@@ -58,20 +94,12 @@ namespace Konnekt {
       this->addStaticValue(IM_PLUG_UI_V, 0);
     }
 
-    inline IMController(IMController const&) { }
-    inline IMController& operator=(IMController const&) { 
-      return *this; 
-    }
-
     inline virtual ~IMController() { 
       for (tObservers::iterator it = this->observers.begin(); it != this->observers.end(); it++) {
         delete it->second;
       }
       for (tObservers::iterator it = this->actionObservers.begin(); it != this->actionObservers.end(); it++) {
         delete it->second;
-      }
-      for (tCfgCols::iterator it = this->cfgCols.begin(); it != this->cfgCols.end(); it++) {
-        delete *it;
       }
     }
 
@@ -96,6 +124,10 @@ namespace Konnekt {
       // in the end we're notifying action observers if it's action message
       if (msg->id == IM_UIACTION) {
         this->notifyActionObservers(msg);
+
+        if (this->isSublassed() && this->isForwardable()) {
+          this->forwardAction();
+        }
       }
 
       if (this->isReturnCodeSet()) {
@@ -120,10 +152,20 @@ namespace Konnekt {
      * \param overwrite overrides callback with the same \a name if any exists
      * \return logical true if observer was attached
      */
-    inline bool registerObserver(int id, fOnIMessage f, int priority = 0, signals::connect_position pos = signals::at_back, 
+    inline bool registerObserver(tIMid id, fOnIMessage f, int priority = 0, signals::connect_position pos = signals::at_back, 
       const StringRef& name = "", bool overwrite = true) 
     {
       return this->_registerObserver(id, f, priority, pos, name, overwrite, this->observers);
+    }
+
+    inline bool registerActionObserver(const sSubclassedAction& an, fOnIMessage f, int priority = 0, 
+      signals::connect_position pos = signals::at_back, const StringRef& name = "", bool overwrite = true) 
+    {
+      if (this->_registerObserver(an.id, f, priority, pos, name, overwrite, this->actionObservers)) {
+        this->subclassAction(an.id, an.parent, an.forwardable, an.mask);
+        return true;
+      }
+      return false;
     }
 
     inline bool registerActionObserver(int id, fOnIMessage f, int priority = 0, signals::connect_position pos = signals::at_back, 
@@ -133,17 +175,54 @@ namespace Konnekt {
     }
 
     inline void notifyObservers(sIMessage_2params* msg) {
-      if (!this->isObserved(msg->id)) return;
-
-      this->setIM(msg);
-      this->observers[msg->id]->signal(this);
+      return this->_notifyObservers(this->setIM(msg)->im->id, this->observers);
     }
 
     inline void notifyActionObservers(sIMessage_2params* msg) {
-      int id = this->setIM(msg)->getAN()->act.id;
+      return this->_notifyObservers(this->setIM(msg)->getAN()->act.id, this->actionObservers);
+    }
 
-      if (!this->isActionObserved(id)) return;
-      this->actionObservers[id]->signal(this);
+    inline void forwardAction() {
+      if (!isSublassed()) return;
+      return this->setReturnCode(Ctrl->IMessageDirect(IM_UIACTION, this->getPrevOwner(), (int) this->getAN()));
+    }
+
+    inline bool isSublassed(int id, int parent) {
+      for (tSubclassedActions::iterator it = subclassedActions.begin(); it != subclassedActions.end(); it++) {
+        if (it->id == id && it->parent == parent) return true;
+      }
+      return false;
+    }
+
+    inline bool isSublassed() {
+      if (!getAN()) return false;
+      return this->isSublassed(getAN()->act.id, getAN()->act.parent);
+    }
+
+    inline bool isForwardable(int id, int parent) {
+      for (tSubclassedActions::iterator it = subclassedActions.begin(); it != subclassedActions.end(); it++) {
+        if (it->id == id && it->parent == parent) return it->forwardable;
+      }
+      return false;
+    }
+
+    inline bool isForwardable() {
+      if (!getAN()) return false;
+      return this->isForwardable(getAN()->act.id, getAN()->act.parent);
+    }
+
+    inline void subclassAction(int id, int parent, bool forwardable = false, int mask = UIAIM_ALL) {
+      if (this->isSublassed(id, parent)) {
+        return;
+      }
+      this->subclassedActions.push_back(sSubclassedAction(id, parent, forwardable, 0, mask));
+    }
+
+    inline int getPrevOwner() {
+      for (tSubclassedActions::iterator it = subclassedActions.begin(); it != subclassedActions.end(); it++) {
+        if (getAN()->act.id == it->id && getAN()->act.parent == it->parent) return it->prevOwner;
+      }
+      return sSubclassedAction::notFound;
     }
 
     // Cleanin' variables
@@ -202,7 +281,6 @@ namespace Konnekt {
 
     inline IMController* setIM(sIMessage_2params* im) { 
       this->im = im;
-
       return this;
     }
 
@@ -211,71 +289,12 @@ namespace Konnekt {
     }
 
     inline bool isObserved(int id) {
-      if (this->observers.find(id) != this->observers.end()) {
-        return !this->observers[id]->signal.empty();
-      }
-      return false;
+      return this->_isObserved(id, this->observers);
     }
 
     inline bool isActionObserved(int id) {
-      if (this->actionObservers.find(id) != this->actionObservers.end()) {
-        return !this->actionObservers[id]->signal.empty();
-      }
-      return false;
+      return this->_isObserved(id, this->actionObservers);
     }
-
-    inline void setColumn(tTable table, int id, int type, const char* def, const char* name) {
-      this->cfgCols.push_back(new sIMessage_setColumn(table, id, type, def, name));
-    }
-    inline void setColumn(tTable table, int id, int type, int def, const char* name) {
-      this->cfgCols.push_back(new sIMessage_setColumn(table, id, type, def, name));
-    }
-
-    inline void resetColumns(tTable table = Tables::tableNotFound) {
-      if (!this->cfgCols.size()) return;
-
-      bool resetCnt = table == Tables::tableContacts;
-      bool resetCfg = table == Tables::tableConfig;
-
-      if (table == Tables::tableNotFound) {
-        resetCfg = resetCnt = true;
-      }
-
-      if (!resetCnt && !resetCfg) {
-        return;
-      }
-
-      tCfgCols dtCnt;
-      for (tCfgCols::iterator it = this->cfgCols.begin(); it != this->cfgCols.end(); it++) {
-        if ((*it)->_table == Tables::tableConfig && resetCfg) {
-          this->_resetColumn(*it);
-        }
-        if ((*it)->_table == Tables::tableContacts && resetCnt) {
-          dtCnt.push_back(*it);
-        }
-      }
-
-      if (dtCnt.size()) {
-        int count = Ctrl->IMessage(IMC_CNT_COUNT);
-        for (int i = 1; i < count; i++) {
-          for (tCfgCols::iterator it = dtCnt.begin(); it != dtCnt.end(); it++) {
-            this->_resetColumn(*it, i);
-          }
-        }
-      }
-    }
-
-    inline void resetColumn(int id, int cnt = 0) {
-      if (!this->cfgCols.size()) return;
-
-      tTable table = !cnt ? Tables::tableConfig : Tables::tableContacts;
-      for (tCfgCols::iterator it = this->cfgCols.begin(); it != this->cfgCols.end(); it++) {
-        if ((*it)->_id == id && (*it)->_table == table) {
-          this->_resetColumn(*it, cnt); break;
-        }
-      }
-    }
-
 
   protected:
     /* inline void dbgObservers() {
@@ -285,6 +304,20 @@ namespace Konnekt {
         }
       }
     } */
+
+    inline bool _isObserved(int id, tObservers& list) {
+      if (list.find(id) != list.end()) {
+        return !list[id]->signal.empty();
+      }
+      return false;
+    }
+
+    inline void _notifyObservers(int id, tObservers& list) {
+      if (!this->_isObserved(id, list)) {
+        return;
+      }
+      list[id]->signal(this);
+    }
 
     inline bool _registerObserver(
       int id, fOnIMessage f, int priority, signals::connect_position pos, 
@@ -297,7 +330,7 @@ namespace Konnekt {
         list[id] = new sObserver;
       }
       if (!name.length()) {
-        name = "unnamed." + list[id]->connections.size();
+        name = "unnamed." + inttostr(list[id]->connections.size());
       }
       if (list[id]->connections.find(name) != list[id]->connections.end()) {
         if (overwrite) {
@@ -309,67 +342,39 @@ namespace Konnekt {
       return (list[id]->connections[name] = list[id]->signal.connect(priority, f, pos)).connected();
     }
 
-    inline void _resetColumn(sIMessage_setColumn* it, int cnt = 0) {
-      bool isCnt = it->_table == Tables::tableContacts && cnt;
-      bool isConfig = it->_table == Tables::tableConfig;
-
-      if (!isCnt && !isConfig) {
-        return;
-      }
-
-      switch (it->_type) {
-        case Tables::ctypeInt: {
-          if (isConfig) {
-            SETINT(it->_id, it->_def);
-          }
-          if (isCnt) {
-            SETCNTI(cnt, it->_id, it->_def);
-          }
-          break;
-        }
-        case Tables::ctypeInt64: {
-          if (isConfig) {
-            // SETINT(it->_id, *it->_def_p64);
-          }
-          if (isCnt) {
-            SETCNTI64(cnt, it->_id, *it->_def_p64);
-          }
-          break;
-        }
-        case Tables::ctypeString: {
-          if (isConfig) {
-            SETSTR(it->_id, it->_def_ch);
-          }
-          if (isCnt) {
-            SETCNTC(cnt, it->_id, it->_def_ch);
-          }
-          break;
-        }
-      }
-    }
-
-    tIMCallback inline _setColumns() {
-      for (tCfgCols::iterator it = this->cfgCols.begin(); it != this->cfgCols.end(); it++) {
-        Ctrl->IMessage(*it);
-      }
-      return this->setSuccess();
-    }
-
-    tIMCallback inline _plugInit() {
+    inline tIMCallback _plugInit() {
       Plug_Init(this->getIM()->p1, this->getIM()->p2);
       return this->setSuccess();
     }
 
-    tIMCallback inline _plugDeInit() {
+    inline tIMCallback _plugDeInit() {
       Plug_Deinit(this->getIM()->p1, this->getIM()->p2);
       return this->setSuccess();
     }
 
+    inline tIMCallback _subclass() {
+      for (tSubclassedActions::iterator it = subclassedActions.begin(); it != subclassedActions.end(); it++) {
+        sUIActionInfo nfo(it->parent, it->id);
+        nfo.mask = it->mask;
+        nfo.txt = new char[100];
+        nfo.txtSize = 99;
+
+        UIActionGet(nfo);
+        if (!(it->prevOwner = Ctrl->ICMessage(IMI_ACTION_GETOWNER, (int)&nfo.act))) {
+          it->prevOwner = Ctrl->ICMessage(IMC_PLUG_ID, 0);
+        }
+
+        Ctrl->ICMessage(IMI_ACTION_REMOVE, (int)&nfo.act);
+        Ctrl->ICMessage(IMI_ACTION, (int)&nfo);
+        delete [] nfo.txt;
+      }
+    }
+
   protected:
+    tSubclassedActions subclassedActions;
     tStaticValues staticValues;
     tObservers actionObservers;
     tObservers observers;
-    tCfgCols cfgCols;
 
     sIMessage_2params* im;
     bool returnCodeSet;
