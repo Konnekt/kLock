@@ -7,9 +7,9 @@
   *  @filesource
   *  @copyright    Copyright (c) 2005-2006 Sijawusz Pur Rahnama
   *  @link         svn://konnekt.info/kaway2/ kAway2 plugin SVN Repo
-  *  @version      $Revision: 85 $
+  *  @version      $Revision: 86 $
   *  @modifiedby   $LastChangedBy: sija $
-  *  @lastmodified $Date: 2006-12-04 23:09:33 +0100 (Pn, 04 gru 2006) $
+  *  @lastmodified $Date: 2006-12-06 03:15:10 +0100 (Śr, 06 gru 2006) $
   *  @license      http://creativecommons.org/licenses/LGPL/2.1/
   */
 
@@ -41,7 +41,7 @@ namespace Konnekt {
   class IMController : public SharedObject<iSharedObject>, signals::trackable {
   public:
     /* Class version */
-	  STAMINA_OBJECT_CLASS_VERSION(IMController, iSharedObject, Version(0,2,0,0));
+	  STAMINA_OBJECT_CLASS_VERSION(IMController, iSharedObject, Version(0,2,1,0));
 
   public:
     typedef function<tIMCallback(IMController*)> fOnIMessage;
@@ -58,20 +58,19 @@ namespace Konnekt {
     struct sSubclassedAction {
       static const int notFound = -1;
 
-      bool forwardable;
+      bool autoForward;
       int prevOwner;
-      int mask;
 
       int parent;
       int id;
 
-      sSubclassedAction(): id(0), parent(0), prevOwner(0), forwardable(false), mask(UIAIM_ALL) { }
+      sSubclassedAction(): id(0), parent(0), prevOwner(notFound), autoForward(false) { }
 
-      sSubclassedAction(int _id, int _parent, bool _forwardable = false, int _mask = UIAIM_ALL):
-        id(_id), parent(_parent), prevOwner(0), forwardable(_forwardable), mask(_mask) { }
+      sSubclassedAction(int _id, int _parent, bool _autoForward = false):
+        id(_id), parent(_parent), prevOwner(notFound), autoForward(_autoForward) { }
 
-      sSubclassedAction(int _id, int _parent, bool _forwardable, int _prevOwner, int _mask):
-        id(_id), parent(_parent), prevOwner(_prevOwner), forwardable(_forwardable), mask(_mask) { }
+      sSubclassedAction(int _id, int _parent, bool _autoForward, int _prevOwner):
+        id(_id), parent(_parent), prevOwner(_prevOwner), autoForward(_autoForward) { }
     };
 
     typedef std::deque<sSubclassedAction> tSubclassedActions;
@@ -81,24 +80,24 @@ namespace Konnekt {
   public:
     inline IMController() : returnCodeSet(false), returnCode(0) { 
       // setting/unsetting Ctrl global pointer
-      this->registerObserver(IM_PLUG_INIT, bind(resolve_cast0(&IMController::_plugInit), this));
-      this->registerObserver(IM_PLUG_DEINIT, bind(resolve_cast0(&IMController::_plugDeInit), this));
-      this->registerObserver(IM_UI_PREPARE, bind(resolve_cast0(&IMController::_subclass), this));
+      registerObserver(IM_PLUG_INIT, bind(resolve_cast0(&IMController::_plugInit), this));
+      registerObserver(IM_PLUG_DEINIT, bind(resolve_cast0(&IMController::_plugDeInit), this));
+      registerObserver(IM_UI_PREPARE, bind(resolve_cast0(&IMController::_subclass), this));
 
       // default values for common messages, may be overriden
-      this->addStaticValue(IM_PLUG_NETNAME, 0);
-      this->addStaticValue(IM_PLUG_PRIORITY, 0);
-      this->addStaticValue(IM_PLUG_SDKVERSION, KONNEKT_SDK_V);
-      this->addStaticValue(IM_PLUG_VERSION, 0);
-      this->addStaticValue(IM_PLUG_CORE_V, (int) "W98");
-      this->addStaticValue(IM_PLUG_UI_V, 0);
+      addStaticValue(IM_PLUG_NETNAME, 0);
+      addStaticValue(IM_PLUG_PRIORITY, 0);
+      addStaticValue(IM_PLUG_SDKVERSION, KONNEKT_SDK_V);
+      addStaticValue(IM_PLUG_VERSION, 0);
+      addStaticValue(IM_PLUG_CORE_V, (int) "W98");
+      addStaticValue(IM_PLUG_UI_V, 0);
     }
 
     inline virtual ~IMController() { 
-      for (tObservers::iterator it = this->observers.begin(); it != this->observers.end(); it++) {
+      for (tObservers::iterator it = observers.begin(); it != observers.end(); it++) {
         delete it->second;
       }
-      for (tObservers::iterator it = this->actionObservers.begin(); it != this->actionObservers.end(); it++) {
+      for (tObservers::iterator it = actionObservers.begin(); it != actionObservers.end(); it++) {
         delete it->second;
       }
     }
@@ -106,63 +105,67 @@ namespace Konnekt {
   public:
     /*
      * Process incoming IMessage
-     * \see registerObserver
+     * @see registerObserver
      */
     inline int process(sIMessage_base* msgBase) {
       sIMessage_2params* msg = static_cast<sIMessage_2params*>(msgBase);
 
-      // log IMessage and clear residues
-      this->clear();
+      // clear residues
+      clear();
 
-      // first, we're looking for static values
-      if (this->staticValues.find(msg->id) != this->staticValues.end()) {
-        this->setReturnCode(this->staticValues[msg->id]);
+      // we're looking for static values
+      if (staticValues.find(msg->id) != staticValues.end()) {
+        setReturnCode(staticValues[msg->id]);
       }
-      // then, we notify global observers
-      this->notifyObservers(msg);
+      // we notify global observers
+      notifyObservers(msg);
 
-      // in the end we're notifying action observers if it's action message
+      // UI action message
       if (msg->id == IM_UIACTION) {
-        this->notifyActionObservers(msg);
+        // notify action observers
+        notifyActionObservers(msg);
 
-        if (this->isSublassed() && this->isForwardable()) {
-          this->forwardAction();
+        // auto-forward action
+        if (isSublassed() && isForwardable()) {
+          forwardAction();
         }
       }
 
-      if (this->isReturnCodeSet()) {
+      // log IMessage
+      if (isReturnCodeSet()) {
         IMLOG("[IMController<%i>::process()]: id = %i, returnCode = %i", this, msg->id, 
-          this->getReturnCode());
+          getReturnCode());
       } else {
+        // set error if no result
         if (Ctrl) {
           Ctrl->setError(IMERROR_NORESULT);
         }
         IMLOG("[IMController<%i>::process()]: id = %i", this, msg->id);
       }
-      return this->getReturnCode();
+      return getReturnCode();
     }
 
     /*
      * Attach observer to specific IMessage
-     * \param id IMessage id
-     * \param f function which should be fired on \a id IMessage
-     * \param priority callback priority (group)
-     * \param pos callback position in group (signals::at_back, signals::at_front)
-     * \param name callback name
-     * \param overwrite overrides callback with the same \a name if any exists
-     * \return logical true if observer was attached
+     * @param id IMessage id
+     * @param f function which should be fired on @a id IMessage
+     * @param priority callback priority (group)
+     * @param pos callback position in group (signals::at_back, signals::at_front)
+     * @param name callback name
+     * @param overwrite overrides callback with the same @a name if any exists
+     * @return logical true if observer was attached
      */
     inline bool registerObserver(tIMid id, fOnIMessage f, int priority = 0, signals::connect_position pos = signals::at_back, 
       const StringRef& name = "", bool overwrite = true) 
     {
-      return this->_registerObserver(id, f, priority, pos, name, overwrite, this->observers);
+      return _registerObserver(id, f, priority, pos, name, overwrite, observers);
     }
 
     inline bool registerActionObserver(const sSubclassedAction& an, fOnIMessage f, int priority = 0, 
       signals::connect_position pos = signals::at_back, const StringRef& name = "", bool overwrite = true) 
     {
-      if (this->_registerObserver(an.id, f, priority, pos, name, overwrite, this->actionObservers)) {
-        this->subclassAction(an.id, an.parent, an.forwardable, an.mask);
+      if (_registerObserver(an.id, f, priority, pos, name, overwrite, actionObservers)) {
+        subclassAction(an);
         return true;
       }
       return false;
@@ -171,22 +174,18 @@ namespace Konnekt {
     inline bool registerActionObserver(int id, fOnIMessage f, int priority = 0, signals::connect_position pos = signals::at_back, 
       const StringRef& name = "", bool overwrite = true) 
     {
-      return this->_registerObserver(id, f, priority, pos, name, overwrite, this->actionObservers);
+      return _registerObserver(id, f, priority, pos, name, overwrite, actionObservers);
     }
 
     inline void notifyObservers(sIMessage_2params* msg) {
-      return this->_notifyObservers(this->setIM(msg)->im->id, this->observers);
+      return _notifyObservers(setIM(msg)->im->id, observers);
     }
 
     inline void notifyActionObservers(sIMessage_2params* msg) {
-      return this->_notifyObservers(this->setIM(msg)->getAN()->act.id, this->actionObservers);
+      return _notifyObservers(setIM(msg)->getAN()->act.id, actionObservers);
     }
 
-    inline void forwardAction() {
-      if (!isSublassed()) return;
-      return this->setReturnCode(Ctrl->IMessageDirect(IM_UIACTION, this->getPrevOwner(), (int) this->getAN()));
-    }
-
+    /* Subclassing */
     inline bool isSublassed(int id, int parent) {
       for (tSubclassedActions::iterator it = subclassedActions.begin(); it != subclassedActions.end(); it++) {
         if (it->id == id && it->parent == parent) return true;
@@ -196,55 +195,73 @@ namespace Konnekt {
 
     inline bool isSublassed() {
       if (!getAN()) return false;
-      return this->isSublassed(getAN()->act.id, getAN()->act.parent);
+      return isSublassed(getAN()->act.id, getAN()->act.parent);
     }
 
     inline bool isForwardable(int id, int parent) {
-      for (tSubclassedActions::iterator it = subclassedActions.begin(); it != subclassedActions.end(); it++) {
-        if (it->id == id && it->parent == parent) return it->forwardable;
+      if (isSublassed(id, parent)) {
+        return _getSubclassedAction(id, parent).autoForward;
       }
       return false;
     }
 
     inline bool isForwardable() {
       if (!getAN()) return false;
-      return this->isForwardable(getAN()->act.id, getAN()->act.parent);
+      return isForwardable(getAN()->act.id, getAN()->act.parent);
     }
 
-    inline void subclassAction(int id, int parent, bool forwardable = false, int mask = UIAIM_ALL) {
-      if (this->isSublassed(id, parent)) {
-        return;
+    inline void setForwardable(int id, int parent, bool set) {
+      if (isSublassed(id, parent)) {
+        _getSubclassedAction(id, parent).autoForward = set;
       }
-      this->subclassedActions.push_back(sSubclassedAction(id, parent, forwardable, 0, mask));
+    }
+
+    inline void setForwardable(bool set) {
+      return setForwardable(getAN()->act.id, getAN()->act.parent, set);
+    }
+
+    inline void forwardAction() {
+      if (!isSublassed()) return;
+      setReturnCode(Ctrl->IMessageDirect(IM_UIACTION, getPrevOwner(), (int) getAN()));
+    }
+
+    inline void subclassAction(const sSubclassedAction& an) {
+      if (!isSublassed(an.id, an.parent)) {
+        subclassedActions.push_back(sSubclassedAction(an.id, an.parent, an.autoForward));
+      }
+    }
+
+    inline void subclassAction(int id, int parent, bool autoForward = false) {
+      return subclassAction(sSubclassedAction(id, parent, autoForward));
     }
 
     inline int getPrevOwner() {
-      for (tSubclassedActions::iterator it = subclassedActions.begin(); it != subclassedActions.end(); it++) {
-        if (getAN()->act.id == it->id && getAN()->act.parent == it->parent) return it->prevOwner;
+      if (isSublassed()) {
+        return _getSubclassedAction(getAN()->act.id, getAN()->act.parent).prevOwner;
       }
       return sSubclassedAction::notFound;
     }
 
     // Cleanin' variables
     inline void clear() {
-      this->returnCodeSet = false;
-      this->returnCode = NULL;
-      this->im = NULL;
+      returnCodeSet = false;
+      returnCode = NULL;
+      im = NULL;
     }
 
     inline int getReturnCode() {
-      return this->returnCode;
+      return returnCode;
     }
 
     inline void setReturnCode(int code) {
-      this->returnCodeSet = true;
-      this->returnCode = code;
+      returnCodeSet = true;
+      returnCode = code;
     }
 
     /*
      * Set string as return value
-     * \warning { this method uses internal buffer which can be overridden by
-     * commonly used functions like \c GETSTR in all flavors. }
+     * @warning { this method uses internal buffer which can be overridden by
+     * commonly used functions like @c GETSTR in all flavors. }
      */
     inline void setReturnValue(const StringRef& value) {
       // tworzymy tymczasowy bufor
@@ -256,27 +273,27 @@ namespace Konnekt {
       // kopiujemy dane
       memcpy(buff, value.a_str(), value.size());
 
-      this->setReturnCode((int) buff);
+      setReturnCode((int) buff);
     }
 
     inline void setSuccess() {
-      return this->setReturnCode(1);
+      return setReturnCode(1);
     }
 
     inline void setFailure() {
-      return this->setReturnCode(-1);
+      return setReturnCode(-1);
     }
 
     inline bool isReturnCodeSet() {
-      return this->returnCodeSet;
+      return returnCodeSet;
     }
 
     inline sIMessage_2params* getIM() {
-      return this->im;
+      return im;
     }
 
     inline sUIActionNotify_2params* getAN() {
-      return static_cast<sUIActionNotify_2params*>((sUIActionNotify_base*) this->getIM()->p1);
+      return static_cast<sUIActionNotify_2params*>((sUIActionNotify_base*) getIM()->p1);
     }
 
     inline IMController* setIM(sIMessage_2params* im) { 
@@ -285,25 +302,32 @@ namespace Konnekt {
     }
 
     inline void addStaticValue(int id, int value) {
-      this->staticValues[id] = value;
+      staticValues[id] = value;
     }
 
     inline bool isObserved(int id) {
-      return this->_isObserved(id, this->observers);
+      return _isObserved(id, observers);
     }
 
     inline bool isActionObserved(int id) {
-      return this->_isObserved(id, this->actionObservers);
+      return _isObserved(id, actionObservers);
     }
 
   protected:
     /* inline void dbgObservers() {
-      for (tObservers::iterator it = this->observers.begin(); it != this->observers.end(); it++) {
+      for (tObservers::iterator it = observers.begin(); it != observers.end(); it++) {
         for (tConnections::iterator it2 = it->second->connections.begin(); it2 != it->second->connections.end(); it2++) {
           IMLOG("Observer[%i].connection: %s", it->first, it2->first.c_str());
         }
       }
     } */
+
+    inline sSubclassedAction& _getSubclassedAction(int id, int parent) {
+      for (tSubclassedActions::iterator it = subclassedActions.begin(); it != subclassedActions.end(); it++) {
+        if (id == it->id && parent == it->parent) return *it;
+      }
+      return sSubclassedAction();
+    }
 
     inline bool _isObserved(int id, tObservers& list) {
       if (list.find(id) != list.end()) {
@@ -313,7 +337,7 @@ namespace Konnekt {
     }
 
     inline void _notifyObservers(int id, tObservers& list) {
-      if (!this->_isObserved(id, list)) {
+      if (!_isObserved(id, list)) {
         return;
       }
       list[id]->signal(this);
@@ -343,19 +367,19 @@ namespace Konnekt {
     }
 
     inline tIMCallback _plugInit() {
-      Plug_Init(this->getIM()->p1, this->getIM()->p2);
-      return this->setSuccess();
+      Plug_Init(getIM()->p1, getIM()->p2);
+      return setSuccess();
     }
 
     inline tIMCallback _plugDeInit() {
-      Plug_Deinit(this->getIM()->p1, this->getIM()->p2);
-      return this->setSuccess();
+      Plug_Deinit(getIM()->p1, getIM()->p2);
+      return setSuccess();
     }
 
     inline tIMCallback _subclass() {
       for (tSubclassedActions::iterator it = subclassedActions.begin(); it != subclassedActions.end(); it++) {
         sUIActionInfo nfo(it->parent, it->id);
-        nfo.mask = it->mask;
+        nfo.mask = UIAIM_ALL;
         nfo.txt = new char[100];
         nfo.txtSize = 99;
 
