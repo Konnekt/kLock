@@ -13,10 +13,10 @@ namespace kLock
 	{
     this->config = new CfgController(this);
 
-		this->addStaticValue(IM_PLUG_TYPE, IMT_UI | IMT_CONFIG);
-		this->addStaticValue(IM_PLUG_NAME, kLock::name);
-		this->addStaticValue(IM_PLUG_SIG, kLock::sig);
-		this->addStaticValue(IM_PLUG_NET, kLock::net);
+		this->setStaticValue(IM_PLUG_TYPE, IMT_UI | IMT_CONFIG);
+		this->setStaticValue(IM_PLUG_NAME, (int) kLock::name);
+		this->setStaticValue(IM_PLUG_SIG, (int) kLock::sig);
+		this->setStaticValue(IM_PLUG_NET, kLock::net);
 
 		this->registerObserver(IM_UI_PREPARE, bind(resolve_cast0(&Controller::onPrepare), this));
 		this->registerObserver(IM_START, bind(resolve_cast0(&Controller::onStart), this));
