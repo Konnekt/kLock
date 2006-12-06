@@ -7,9 +7,9 @@
   *  @filesource
   *  @copyright    Copyright (c) 2005-2006 Sijawusz Pur Rahnama
   *  @link         svn://konnekt.info/kaway2/ kAway2 plugin SVN Repo
-  *  @version      $Revision: 86 $
+  *  @version      $Revision: 87 $
   *  @modifiedby   $LastChangedBy: sija $
-  *  @lastmodified $Date: 2006-12-06 03:15:10 +0100 (Śr, 06 gru 2006) $
+  *  @lastmodified $Date: 2006-12-06 03:49:33 +0100 (Śr, 06 gru 2006) $
   *  @license      http://creativecommons.org/licenses/LGPL/2.1/
   */
 
@@ -78,10 +78,11 @@ namespace Konnekt {
     typedef std::map<int, int> tStaticValues;
 
   public:
-    inline IMController() : returnCodeSet(false), returnCode(0) { 
+    inline IMController(): returnCodeSet(false), returnCode(0) { 
       // setting/unsetting Ctrl global pointer
       registerObserver(IM_PLUG_INIT, bind(resolve_cast0(&IMController::_plugInit), this));
       registerObserver(IM_PLUG_DEINIT, bind(resolve_cast0(&IMController::_plugDeInit), this));
+      // actions subclassing
       registerObserver(IM_UI_PREPARE, bind(resolve_cast0(&IMController::_subclass), this));
 
       // default values for common messages, may be overriden
@@ -113,14 +114,14 @@ namespace Konnekt {
       // clear residues
       clear();
 
-      // we're looking for static values
+      // looking for static values
       if (staticValues.find(msg->id) != staticValues.end()) {
         setReturnCode(staticValues[msg->id]);
       }
-      // we notify global observers
+      // notify global observers
       notifyObservers(msg);
 
-      // UI action message
+      // ui action message
       if (msg->id == IM_UIACTION) {
         // notify action observers
         notifyActionObservers(msg);
@@ -217,22 +218,28 @@ namespace Konnekt {
     }
 
     inline void setForwardable(bool set) {
+      if (!getAN()) return;
       return setForwardable(getAN()->act.id, getAN()->act.parent, set);
-    }
-
-    inline void forwardAction() {
-      if (!isSublassed()) return;
-      setReturnCode(Ctrl->IMessageDirect(IM_UIACTION, getPrevOwner(), (int) getAN()));
     }
 
     inline void subclassAction(const sSubclassedAction& an) {
       if (!isSublassed(an.id, an.parent)) {
-        subclassedActions.push_back(sSubclassedAction(an.id, an.parent, an.autoForward));
+        subclassedActions.push_back(an);
       }
     }
 
     inline void subclassAction(int id, int parent, bool autoForward = false) {
       return subclassAction(sSubclassedAction(id, parent, autoForward));
+    }
+
+    inline IMController* forwardAction(bool _setReturnCode = true) {
+      if (isSublassed()) {
+        int retValue = Ctrl->IMessageDirect(IM_UIACTION, getPrevOwner(), (int) getAN());
+        if (_setReturnCode) {
+          setReturnCode(retValue);
+        }
+      }
+      return this;
     }
 
     inline int getPrevOwner() {

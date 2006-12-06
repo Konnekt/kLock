@@ -179,7 +179,8 @@ namespace kLock
 						}
 					}
 				}
-        return this->forwardAction();
+        this->forwardAction();
+        break;
 			}
 			case Konnekt::UI::ACT::msg_ctrlview:
 			{
@@ -194,7 +195,8 @@ namespace kLock
 						return this->setReturnCode(0);
 					}
 				}
-        return this->forwardAction();
+        this->forwardAction();
+        break;
 			}
 			case kLock::ACT::enableActs:
 			{
