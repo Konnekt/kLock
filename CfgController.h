@@ -18,19 +18,14 @@
 #ifndef __CFGCTRL_H__
 #define __CFGCTRL_H__
 
-#include <boost/signal.hpp>
-#include <boost/function.hpp>
-#include <boost/bind.hpp>
-
 #include "IMController.h"
-// #include "CfgActions.h"
 
-using namespace Konnekt;
+using namespace Konnekt::Tables;
 using namespace Stamina;
 using namespace boost;
 
 namespace Konnekt {
-  class CfgController : public SharedObject<iSharedObject> {
+  class CfgController : public SharedObject<iSharedObject>, public signals::trackable {
   public:
     /* Class version */
 	  STAMINA_OBJECT_CLASS_VERSION(CfgController, iSharedObject, Version(0,1,0,0));
@@ -39,34 +34,32 @@ namespace Konnekt {
     typedef std::vector<sIMessage_setColumn*> tCfgCols;
 
   public:
-    inline CfgController(IMController* _IMCtrl) : IMCtrl(_IMCtrl) {
+    inline CfgController(IMController* _IMCtrl): IMCtrl(_IMCtrl) {
       // automagical registration of configuration columns (set via setColumn())
       IMCtrl->registerObserver(IM_SETCOLS, bind(resolve_cast0(&CfgController::_setColumns), this));
-      // drawing configuration UI
-      // IMCtrl->registerObserver(IM_UI_PREPARE, bind(resolve_cast0(&CfgController::_drawUI), this));
     }
 
     inline virtual ~CfgController() { 
-      for (tCfgCols::iterator it = this->_cols.begin(); it != this->_cols.end(); it++) {
+      for (tCfgCols::iterator it = _cols.begin(); it != _cols.end(); it++) {
         delete *it;
       }
     }
 
   public:
-    inline void setColumn(tTable table, Tables::tColId id, int type, const char* def, const char* name) {
-      this->_cols.push_back(new sIMessage_setColumn(table, id, type, def, name));
+    inline void setColumn(tTable table, tColId id, int type, const char* def, const char* name) {
+      _cols.push_back(new sIMessage_setColumn(table, id, type, def, name));
     }
-    inline void setColumn(tTable table, Tables::tColId id, int type, int def, const char* name) {
-      this->_cols.push_back(new sIMessage_setColumn(table, id, type, def, name));
+    inline void setColumn(tTable table, tColId id, int type, int def, const char* name) {
+      _cols.push_back(new sIMessage_setColumn(table, id, type, def, name));
     }
 
-    inline void resetColumns(tTable table = Tables::tableNotFound) {
-      if (!this->_cols.size()) return;
+    inline void resetColumns(tTable table = tableNotFound) {
+      if (!_cols.size()) return;
 
-      bool resetCnt = table == Tables::tableContacts;
-      bool resetCfg = table == Tables::tableConfig;
+      bool resetCnt = table == tableContacts;
+      bool resetCfg = table == tableConfig;
 
-      if (table == Tables::tableNotFound) {
+      if (table == tableNotFound) {
         resetCfg = resetCnt = true;
       }
 
@@ -75,11 +68,11 @@ namespace Konnekt {
       }
 
       tCfgCols dtCnt;
-      for (tCfgCols::iterator it = this->_cols.begin(); it != this->_cols.end(); it++) {
-        if ((*it)->_table == Tables::tableConfig && resetCfg) {
-          this->_resetColumn(*it);
+      for (tCfgCols::iterator it = _cols.begin(); it != _cols.end(); it++) {
+        if ((*it)->_table == tableConfig && resetCfg) {
+          _resetColumn(*it);
         }
-        if ((*it)->_table == Tables::tableContacts && resetCnt) {
+        if ((*it)->_table == tableContacts && resetCnt) {
           dtCnt.push_back(*it);
         }
       }
@@ -88,44 +81,49 @@ namespace Konnekt {
         int count = Ctrl->IMessage(IMC_CNT_COUNT);
         for (int i = 1; i < count; i++) {
           for (tCfgCols::iterator it = dtCnt.begin(); it != dtCnt.end(); it++) {
-            this->_resetColumn(*it, i);
+            _resetColumn(*it, i);
           }
         }
       }
     }
 
-    inline void resetColumn(int id, int cnt = 0) {
-      if (!this->_cols.size())  return;
+    inline void resetColumn(int id, tCntId cnt = 0) {
+      if (!_cols.size()) return;
 
-      tTable table = !cnt ? Tables::tableConfig : Tables::tableContacts;
-      for (tCfgCols::iterator it = this->_cols.begin(); it != this->_cols.end(); it++) {
+      tTable table = !cnt ? tableConfig : tableContacts;
+      for (tCfgCols::iterator it = _cols.begin(); it != _cols.end(); it++) {
         if ((*it)->_id == id && (*it)->_table == table) {
-          this->_resetColumn(*it, cnt); break;
+          _resetColumn(*it, cnt); break;
         }
       }
     }
 
     /*
-    inline void addPage(const CfgPage& page) {
-      this->_pages.push_back(page);
+     * @todo find some better way to handle it
+     */
+    inline int getInheritedIValue(int col, tCntId cnt) {
+      return GETCNTI(cnt, col) >= 0 ? GETCNTI(cnt, col) : GETINT(col);
     }
 
-    inline void operator += (CfgPage& page) {
-      return addPage(page);
+    inline bool getInheritedBValue(int col, tCntId cnt) {
+      return (GETINT(col) && (GETCNTI(cnt, col) < 2)) || (!GETINT(col) && (GETCNTI(cnt, col) == 1));
     }
-    */
+
+    inline const char* getInheritedCValue(int col, tCntId cnt) {
+      return strlen(GETCNTC(cnt, col)) ? GETCNTC(cnt, col) : GETSTRA(col);
+    }
 
   protected:
-    inline void _resetColumn(sIMessage_setColumn* it, int cnt = 0) {
-      bool isCnt = it->_table == Tables::tableContacts && cnt;
-      bool isConfig = it->_table == Tables::tableConfig;
+    inline void _resetColumn(sIMessage_setColumn* it, tCntId cnt = 0) {
+      bool isCnt = it->_table == tableContacts && cnt;
+      bool isConfig = it->_table == tableConfig;
 
       if (!isCnt && !isConfig) {
         return;
       }
 
       switch (it->_type) {
-        case Tables::ctypeInt: {
+        case ctypeInt: {
           if (isConfig) {
             SETINT(it->_id, it->_def);
           }
@@ -134,7 +132,7 @@ namespace Konnekt {
           }
           break;
         }
-        case Tables::ctypeInt64: {
+        case ctypeInt64: {
           if (isConfig) {
             // SETINT(it->_id, *it->_def_p64);
           }
@@ -143,7 +141,7 @@ namespace Konnekt {
           }
           break;
         }
-        case Tables::ctypeString: {
+        case ctypeString: {
           if (isConfig) {
             SETSTR(it->_id, it->_def_ch);
           }
@@ -155,16 +153,8 @@ namespace Konnekt {
       }
     }
 
-    /*
-    inline tIMCallback _drawUI() {
-      for (tCfgPages::iterator it = this->_pages.begin(); it != this->_pages.end(); it++) {
-        it->draw();
-      }
-    }
-    */
-
     inline tIMCallback _setColumns() {
-      for (tCfgCols::iterator it = this->_cols.begin(); it != this->_cols.end(); it++) {
+      for (tCfgCols::iterator it = _cols.begin(); it != _cols.end(); it++) {
         Ctrl->IMessage(*it);
       }
       return IMCtrl->setSuccess();
@@ -172,7 +162,6 @@ namespace Konnekt {
 
   protected:
     IMController* IMCtrl;
-    // tCfgPages _pages;
     tCfgCols _cols;
   };
 
