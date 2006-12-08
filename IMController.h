@@ -7,9 +7,9 @@
   *  @filesource
   *  @copyright    Copyright (c) 2005-2006 Sijawusz Pur Rahnama
   *  @link         svn://konnekt.info/kaway2/ kAway2 plugin SVN Repo
-  *  @version      $Revision: 90 $
+  *  @version      $Revision: 98 $
   *  @modifiedby   $LastChangedBy: sija $
-  *  @lastmodified $Date: 2006-12-06 06:09:04 +0100 (Śr, 06 gru 2006) $
+  *  @lastmodified $Date: 2006-12-08 18:27:59 +0100 (Pt, 08 gru 2006) $
   *  @license      http://creativecommons.org/licenses/LGPL/2.1/
   */
 
@@ -41,7 +41,7 @@ namespace Konnekt {
   class IMController : public SharedObject<iSharedObject>, public signals::trackable {
   public:
     /* Class version */
-	  STAMINA_OBJECT_CLASS_VERSION(IMController, iSharedObject, Version(0,2,1,0));
+    STAMINA_OBJECT_CLASS_VERSION(IMController, iSharedObject, Version(0,2,1,0));
 
   public:
     typedef function<tIMCallback(IMController*)> fOnIMessage;
@@ -114,6 +114,9 @@ namespace Konnekt {
       // clear residues
       clear();
 
+      // set im
+      setIM(msg);
+
       // looking for static values
       if (staticValues.find(msg->id) != staticValues.end()) {
         setReturnCode(staticValues[msg->id]);
@@ -122,7 +125,7 @@ namespace Konnekt {
       notifyObservers(msg);
 
       // ui action message
-      if (msg->id == IM_UIACTION) {
+      if (isAction()) {
         // notify action observers
         notifyActionObservers(msg);
 
@@ -179,11 +182,11 @@ namespace Konnekt {
     }
 
     inline void notifyObservers(sIMessage_2params* msg) {
-      return _notifyObservers(setIM(msg)->im->id, observers);
+      return _notifyObservers(im->id, observers);
     }
 
     inline void notifyActionObservers(sIMessage_2params* msg) {
-      return _notifyObservers(setIM(msg)->getAN()->act.id, actionObservers);
+      return _notifyObservers(getAN()->act.id, actionObservers);
     }
 
     /* Subclassing */
@@ -195,7 +198,7 @@ namespace Konnekt {
     }
 
     inline bool isSublassed() {
-      if (!getAN()) return false;
+      if (!isAction()) return false;
       return isSublassed(getAN()->act.id, getAN()->act.parent);
     }
 
@@ -207,8 +210,20 @@ namespace Konnekt {
     }
 
     inline bool isForwardable() {
-      if (!getAN()) return false;
+      if (!isAction()) return false;
       return isForwardable(getAN()->act.id, getAN()->act.parent);
+    }
+
+    inline int getPrevOwner(int id, int parent) {
+      if (isSublassed(id, parent)) {
+        return _getSubclassedAction(id, parent).prevOwner;
+      }
+      return sSubclassedAction::notFound;
+    }
+
+    inline int getPrevOwner() {
+      if (!isAction()) return sSubclassedAction::notFound;
+      return getPrevOwner(getAN()->act.id, getAN()->act.parent);
     }
 
     inline void setForwardable(int id, int parent, bool set) {
@@ -218,7 +233,7 @@ namespace Konnekt {
     }
 
     inline void setForwardable(bool set) {
-      if (!getAN()) return;
+      if (!isAction()) return;
       return setForwardable(getAN()->act.id, getAN()->act.parent, set);
     }
 
@@ -233,18 +248,11 @@ namespace Konnekt {
     }
 
     inline IMController* forwardAction(bool _setReturnCode = true) {
-      if (isSublassed()) {
+      if (isAction() && isSublassed()) {
         int retValue = Ctrl->IMessageDirect(IM_UIACTION, getPrevOwner(), (int) getAN());
         if (_setReturnCode) setReturnCode(retValue);
       }
       return this;
-    }
-
-    inline int getPrevOwner() {
-      if (isSublassed()) {
-        return _getSubclassedAction(getAN()->act.id, getAN()->act.parent).prevOwner;
-      }
-      return sSubclassedAction::notFound;
     }
 
     // Cleanin' variables
@@ -298,13 +306,18 @@ namespace Konnekt {
       return im;
     }
 
-    inline sUIActionNotify_2params* getAN() {
-      return static_cast<sUIActionNotify_2params*>((sUIActionNotify_base*) getIM()->p1);
-    }
-
     inline IMController* setIM(sIMessage_2params* im) { 
       this->im = im;
       return this;
+    }
+
+    inline bool isAction() {
+      return getIM()->id == IM_UIACTION;
+    }
+
+    inline sUIActionNotify_2params* getAN() {
+      if (!isAction()) return NULL;
+      return static_cast<sUIActionNotify_2params*>((sUIActionNotify_base*) getIM()->p1);
     }
 
     inline void setStaticValue(int id, int value) {
@@ -356,8 +369,7 @@ namespace Konnekt {
       list[id]->signal(this);
     }
 
-    inline bool _registerObserver(
-      int id, fOnIMessage f, int priority, signals::connect_position pos, 
+    inline bool _registerObserver(int id, fOnIMessage f, int priority, signals::connect_position pos, 
       StringRef name, bool overwrite, tObservers& list) 
     {
       if (f.empty()) {
