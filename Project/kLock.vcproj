@@ -183,7 +183,7 @@
 				Name="VCPostBuildEventTool"
 				Description="Coping to Konnekt folder, creating kUpdate and zip packages…"
 				CommandLine="cd $(TargetDir)&#x0D;&#x0A;copy &quot;$(TargetFileName)&quot; &quot;D:\Program Files\Konnekt\plugins&quot;&#x0D;&#x0A;zip -0q $(TargetName) $(TargetFileName)&#x0D;&#x0A;cd %temp%&#x0D;&#x0A;mkdir plugins&#x0D;&#x0A;copy &quot;$(TargetDir)$(TargetFileName)&quot; &quot;plugins&quot;&#x0D;&#x0A;tar czf &quot;$(TargetName).tgz&quot; &quot;plugins&quot;&#x0D;&#x0A;copy $(TargetName).tgz &quot;$(TargetDir)&quot;&#x0D;&#x0A;rmdir /S /Q plugins&#x0D;&#x0A;"
-				ExcludedFromBuild="true"
+				ExcludedFromBuild="false"
 			/>
 		</Configuration>
 	</Configurations>
