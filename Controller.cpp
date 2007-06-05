@@ -606,6 +606,9 @@ namespace kLock
 		if(!unlocking)
 		{
 			unlocking = 1;
+			
+			if(!parent)
+				parent = (HWND)UIGroupHandle(sUIAction(0, IMIG_MAINWND));
 
 			//je¿eli jest has³o lub nie ma has³a
 			if(strlen(GETSTRA(kLock::CFG::password)))
@@ -616,10 +619,7 @@ namespace kLock
 				{
 					sde.info = text.c_str();
 					sde.title = title.c_str();
-					if(!parent)
-						sde.handle = (HWND)UIGroupHandle(sUIAction(0, IMIG_MAINWND));
-					else
-						sde.handle = parent;
+					sde.handle = parent;
 					//jeœli siê nie uda³o zwracamy 0
 					if(!ICMessage(IMI_DLGPASS, (int)&sde))
 					{
@@ -636,7 +636,7 @@ namespace kLock
 				}
 				else
 				{
-					ICMessage(IMI_ERROR, (int)"Z³e has³o!");
+					MessageBox(parent, "Z³e has³o", title.c_str(), MB_ICONERROR);
 					unlocking = 0;
 					return 0;
 				}
@@ -646,7 +646,7 @@ namespace kLock
 				IMLOG("Nie ma has³a");
 
 				//jeœli potwierdzono lub nie
-				if(ICMessage(IMI_CONFIRM, (int)text2.c_str()))
+				if(MessageBox(parent, text2.c_str(), title.c_str(), MB_ICONQUESTION|MB_YESNO) == IDYES)
 				{
 					unlocking = 0;
 					return 1;

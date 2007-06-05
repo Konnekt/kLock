@@ -18,11 +18,9 @@ namespace kLock
 		{
 			switch(iMsg)
 			{
-				case WM_WINDOWPOSCHANGING:
 				case WM_WINDOWPOSCHANGED:
-				case WM_SHOWWINDOW:
 				{
-					IMLOG("[konnektWindowProc:] iMsg = WM_WINDOWPOSCHANGING|WM_WINDOWPOSCHANGED|WM_SHOWWINDOW");
+					IMLOG("[konnektWindowProc:] iMsg = WM_WINDOWPOSCHANGED");
 
 					//chowamy okienko
 					ShowWindow(hWnd, SW_HIDE);
